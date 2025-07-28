@@ -9,6 +9,7 @@
 UEffectRestoreStamina::UEffectRestoreStamina()
 {
     this->DurationPolicy = EGameplayEffectDurationType::Infinite;
+    this->Period = 0.012f;
     FGameplayModifierInfo mod;
     FSetByCallerFloat callerMag;
     callerMag.DataTag = Tags::Attribute::stamina;
