@@ -9,6 +9,9 @@
 /**
  * 
  */
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FNotifyStaminaChange, float, Percentage);
+
 UCLASS()
 class UAttributeStamina : public UAttributeSet
 {
@@ -21,6 +24,11 @@ public:
 	FGameplayAttributeData Stamina;
 	UPROPERTY()
 	FGameplayAttributeData MaxStamina;
+
+	UPROPERTY(BlueprintAssignable)
+	FNotifyStaminaChange OnStaminaChange;
+
+	inline virtual void PreAttributeChange(const FGameplayAttribute &Attribute, float &NewValue);
 
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(UAttributeStamina, Stamina);
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(UAttributeStamina, MaxStamina);
