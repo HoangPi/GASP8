@@ -17,7 +17,9 @@ class UAttributeStamina : public UAttributeSet
 public:
 	UAttributeStamina();
 
+	UPROPERTY()
 	FGameplayAttributeData Stamina;
+	UPROPERTY()
 	FGameplayAttributeData MaxStamina;
 
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(UAttributeStamina, Stamina);
