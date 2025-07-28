@@ -5,6 +5,7 @@
 
 #include "GASP8/GASP8Character.h"
 #include "MyAbilities/Movement/AbilitySprint.h"
+#include "MyAttributes/Stamina/AttributeStamina.h"
 
 // Sets default values for this component's properties
 UComponentSprint::UComponentSprint()
@@ -17,6 +18,7 @@ UComponentSprint::UComponentSprint()
 	if(IAbilitySystemInterface *owner = this->GetOwner<IAbilitySystemInterface>())
 	{
 		this->OwnerASC = owner->GetAbilitySystemComponent();
+		OwnerASC->AddAttributeSetSubobject<UAttributeStamina>(this->CreateDefaultSubobject<UAttributeStamina>(FName("StaminaAttribute")));
 		this->SprintHandle = this->OwnerASC->K2_GiveAbility(UAbilitySprint::StaticClass());
 	}
 	this->SprintAction = LoadObject<UInputAction>(nullptr, TEXT("/Game/ThirdPerson/Input/Actions/IA_Sprint.IA_Sprint"));
