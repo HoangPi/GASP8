@@ -11,6 +11,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 
+#include "MyComponents/Movement/ComponentSprint.h"
+
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 //////////////////////////////////////////////////////////////////////////
@@ -34,7 +36,7 @@ AGASP8Character::AGASP8Character()
 	// instead of recompiling to adjust them
 	GetCharacterMovement()->JumpZVelocity = 700.f;
 	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	GetCharacterMovement()->MaxWalkSpeed = 230.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
@@ -52,6 +54,8 @@ AGASP8Character::AGASP8Character()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+	this->AbilitySystemComponent = this->CreateDefaultSubobject<UAbilitySystemComponent>(FName("MCAbilitySystemComponent"));
+	this->SetupMyComponents();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -126,4 +130,9 @@ void AGASP8Character::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void AGASP8Character::SetupMyComponents()
+{
+	this->CreateDefaultSubobject<UComponentSprint>(FName("MovementComponent"));
 }
