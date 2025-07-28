@@ -21,7 +21,7 @@ void UAbilitySprint::ActivateAbility(
 
     const float level = 1.0f;
     this->EffectSpecDrainStamina = this->MakeOutgoingGameplayEffectSpec(UEffectDrainStamina::StaticClass(), level);
-    this->EffectSpecDrainStamina.Data.Get()->SetSetByCallerMagnitude(Tags::Attribute::stamina, level * -5.0f);
+    this->EffectSpecDrainStamina.Data.Get()->SetSetByCallerMagnitude(Tags::Attribute::stamina, level * -0.5f);
 
     ((ACharacter *)ActorInfo->OwnerActor.Get())->GetCharacterMovement()->MaxWalkSpeed = 500.0f;
     this->EffectHandleDrainStamina = ActorInfo->AbilitySystemComponent.Get()->ApplyGameplayEffectSpecToSelf(*this->EffectSpecDrainStamina.Data.Get());
