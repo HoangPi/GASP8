@@ -4,6 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "AttributeSet.h"
+
+#include "GameplayEffectExtension.h"
+#include "GameplayEffectTypes.h"
+#include "AbilitySystemComponent.h"
+
 #include "AttributeStamina.generated.h"
 
 /**
@@ -29,7 +34,10 @@ public:
 	FNotifyStaminaChange OnStaminaChange;
 
 	inline virtual void PreAttributeChange(const FGameplayAttribute &Attribute, float &NewValue);
+	inline virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData &Data);
 
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(UAttributeStamina, Stamina);
 	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(UAttributeStamina, MaxStamina);
+
+	static FGameplayTagContainer AbilityTagToCancel;
 };

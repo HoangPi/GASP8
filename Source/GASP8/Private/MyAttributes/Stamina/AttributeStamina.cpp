@@ -4,6 +4,10 @@
 #include "MyAttributes/Stamina/AttributeStamina.h"
 
 #include "Ultilities/Macro.h"
+#include "MyEffects/Attribute/Stamina/EffectRestoreStamina.h"
+#include "MyTags/MyTags.h"
+
+FGameplayTagContainer UAttributeStamina::AbilityTagToCancel;
 
 UAttributeStamina::UAttributeStamina()
 {
@@ -11,6 +15,10 @@ UAttributeStamina::UAttributeStamina()
     FAttributeMetaData *data = table->FindRow<FAttributeMetaData>(FName("2"), FString("Why"));
     this->MaxStamina = data->BaseValue;
     this->Stamina = data->BaseValue;
+    if(!UAttributeStamina::AbilityTagToCancel.HasTagExact(Tags::Attribute::stamina))
+    {
+        UAttributeStamina::AbilityTagToCancel.AddTag(Tags::Attribute::stamina);
+    }
 }
 
 void UAttributeStamina::PreAttributeChange(const FGameplayAttribute &Attribute, float &NewValue)
@@ -22,5 +30,23 @@ void UAttributeStamina::PreAttributeChange(const FGameplayAttribute &Attribute, 
         max = this->MaxStamina.GetCurrentValue();
         NewValue = CLAMP(NewValue, 0.0f, max);
         this->OnStaminaChange.Broadcast(NewValue/max);
+    }
+}
+
+void UAttributeStamina::PostGameplayEffectExecute(const FGameplayEffectModCallbackData &Data)
+{
+    Super::PostGameplayEffectExecute(Data);
+    float current;
+    if(Data.EvaluatedData.Attribute == UAttributeStamina::GetStaminaAttribute())
+    {
+        current = this->Stamina.GetCurrentValue();
+        if(current >= this->MaxStamina.GetCurrentValue())
+        {
+            Data.Target.RemoveActiveGameplayEffectBySourceEffect(UEffectRestoreStamina::StaticClass(), nullptr);
+        }
+        else if(current <= 0.0f)
+        {
+            Data.Target.CancelAbilities(&UAttributeStamina::AbilityTagToCancel);
+        }
     }
 }

@@ -8,6 +8,7 @@
 UAbilitySprint::UAbilitySprint()
 {
     this->InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerExecution;
+    this->AbilityTags.AddTag(Tags::Attribute::stamina);
     this->ShouldEnterCombat = true;
 }
 
