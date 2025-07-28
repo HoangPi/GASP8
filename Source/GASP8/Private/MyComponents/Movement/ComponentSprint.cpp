@@ -4,6 +4,7 @@
 #include "MyComponents/Movement/ComponentSprint.h"
 
 #include "GASP8/GASP8Character.h"
+#include "MyAbilities/Movement/AbilitySprint.h"
 
 // Sets default values for this component's properties
 UComponentSprint::UComponentSprint()
@@ -16,6 +17,7 @@ UComponentSprint::UComponentSprint()
 	if(IAbilitySystemInterface *owner = this->GetOwner<IAbilitySystemInterface>())
 	{
 		this->OwnerASC = owner->GetAbilitySystemComponent();
+		this->SprintHandle = this->OwnerASC->K2_GiveAbility(UAbilitySprint::StaticClass());
 	}
 	this->SprintAction = LoadObject<UInputAction>(nullptr, TEXT("/Game/ThirdPerson/Input/Actions/IA_Sprint.IA_Sprint"));
 }
@@ -38,12 +40,12 @@ void UComponentSprint::BeginPlay()
 
 void UComponentSprint::Sprint()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, FString("Sprint"));
+	this->OwnerASC->TryActivateAbility(this->SprintHandle);
 }
 
 void UComponentSprint::StopSprinting()
 {
-	
+	this->OwnerASC->CancelAbilityHandle(this->SprintHandle);
 }
 
 void UComponentSprint::SetupMyInputs(UEnhancedInputComponent *input)

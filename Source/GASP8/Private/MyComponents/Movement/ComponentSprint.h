@@ -23,6 +23,7 @@ public:
 
 	UAbilitySystemComponent *OwnerASC;
 	UInputAction *SprintAction;
+	FGameplayAbilitySpecHandle SprintHandle;
 
 	inline void SetupMyInputs(UEnhancedInputComponent *input);
 
