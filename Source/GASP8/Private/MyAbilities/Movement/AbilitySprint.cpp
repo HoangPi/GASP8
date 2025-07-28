@@ -8,7 +8,9 @@
 UAbilitySprint::UAbilitySprint()
 {
     this->InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerExecution;
-    this->AbilityTags.AddTag(Tags::Attribute::stamina);
+    FGameplayTagContainer c;
+    c.AddTag(Tags::Attribute::stamina);
+    this->SetAssetTags(c);
     this->ShouldEnterCombat = true;
 }
 
