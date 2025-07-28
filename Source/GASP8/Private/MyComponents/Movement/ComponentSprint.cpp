@@ -1,0 +1,53 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "MyComponents/Movement/ComponentSprint.h"
+
+#include "GASP8/GASP8Character.h"
+
+// Sets default values for this component's properties
+UComponentSprint::UComponentSprint()
+{
+	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
+	// off to improve performance if you don't need them.
+	PrimaryComponentTick.bCanEverTick = false;
+
+	// ...
+	if(IAbilitySystemInterface *owner = this->GetOwner<IAbilitySystemInterface>())
+	{
+		this->OwnerASC = owner->GetAbilitySystemComponent();
+	}
+	this->SprintAction = LoadObject<UInputAction>(nullptr, TEXT("/Game/ThirdPerson/Input/Actions/IA_Sprint.IA_Sprint"));
+}
+
+
+// Called when the game starts
+void UComponentSprint::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// ...
+	if(ACharacter *owner = GetOwner<ACharacter>())
+	{
+		if(UEnhancedInputComponent *input = Cast<UEnhancedInputComponent>(owner->InputComponent))
+		{
+			this->SetupMyInputs(input);
+		}
+	}
+}
+
+void UComponentSprint::Sprint()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, FString("Sprint"));
+}
+
+void UComponentSprint::StopSprinting()
+{
+	
+}
+
+void UComponentSprint::SetupMyInputs(UEnhancedInputComponent *input)
+{
+	input->BindAction(this->SprintAction, ETriggerEvent::Started, this, &UComponentSprint::Sprint);
+	input->BindAction(this->SprintAction, ETriggerEvent::Completed, this, &UComponentSprint::StopSprinting);
+}
