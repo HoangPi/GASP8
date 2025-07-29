@@ -5,8 +5,8 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 
-#include "AbilitySystemComponent.h"
-#include "AbilitySystemInterface.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Character.h"
 #include "EnhancedInputComponent.h"
 
@@ -22,9 +22,13 @@ public:
 	// Sets default values for this component's properties
 	UComponentLockon();
 
-	UAbilitySystemComponent *OwnerASC;
+	class UAbilitySystemComponent *OwnerASC;
+	class AGASP8Character *MyOwner;
 	UInputAction *LockonAction;
 	AActor *LockonTarget;
+	FCollisionObjectQueryParams CollisionObject;
+	FCollisionShape CollisionShape;
+	FCollisionQueryParams ActorsToIgnore;
 
 	inline void SetupMyInputs(UEnhancedInputComponent *input);
 	UFUNCTION()
