@@ -5,5 +5,6 @@ namespace Tags
     namespace EffectType
     {
         UE_DEFINE_GAMEPLAY_TAG(idle, "effect_type.idle")
+        UE_DEFINE_GAMEPLAY_TAG(cooldown, "effect_type.cooldown")
     }
 }
