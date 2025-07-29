@@ -25,7 +25,6 @@ UComponentLockon::UComponentLockon()
 		UEffectGenericCooldown *cooldownTemp = this->CreateDefaultSubobject<UEffectGenericCooldown>(FName("SwitchCooldown"));
 		cooldownTemp->SetCooldown(1.0f);
 		this->CooldownSpec = FGameplayEffectSpec(cooldownTemp, this->OwnerASC->MakeEffectContext(), 1.0f);
-		this->CooldownSpec.SetSetByCallerMagnitude(Tags::EffectType::cooldown, 1.0f);
 	}
 	this->CollisionObject.AddObjectTypesToQuery(ECollisionChannel::ECC_GameTraceChannel1);
 	this->ActorsToIgnore.AddIgnoredActor(this->GetOwner());
