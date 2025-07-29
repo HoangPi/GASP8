@@ -16,4 +16,7 @@ class UEffectGenericCooldown : public UGameplayEffect
 	
 public:
 	UEffectGenericCooldown();
+
+	// Set the new cooldown for sub object (the default cooldown is 5s)
+	void SetCooldown(float NewCooldown);
 };

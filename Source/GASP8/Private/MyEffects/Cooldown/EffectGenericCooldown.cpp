@@ -8,7 +8,10 @@
 UEffectGenericCooldown::UEffectGenericCooldown()
 {
     this->DurationPolicy = EGameplayEffectDurationType::HasDuration;
-    FSetByCallerFloat caller;
-    caller.DataTag = Tags::EffectType::cooldown;
-    this->DurationMagnitude = FGameplayEffectModifierMagnitude(caller);
+    this->DurationMagnitude = FGameplayEffectModifierMagnitude(5.0f);
+}
+
+void UEffectGenericCooldown::SetCooldown(float NewCooldown)
+{
+    this->DurationMagnitude = FGameplayEffectModifierMagnitude(NewCooldown);
 }
