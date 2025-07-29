@@ -5,6 +5,9 @@
 #include "GASP8/GASP8Character.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Ultilities/MyConst.h"
+#include "MyEffects/Cooldown/EffectGenericCooldown.h"
+#include "MyTags/MyTags.h"
 
 // Sets default values for this component's properties
 UComponentLockon::UComponentLockon()
@@ -15,9 +18,12 @@ UComponentLockon::UComponentLockon()
 	this->SetComponentTickEnabled(false);
 	this->LockonTarget = nullptr;
 	this->LockonAction = LoadObject<UInputAction>(nullptr, TEXT("/Game/ThirdPerson/Input/Actions/IA_Lockon.IA_Lockon"));
+	this->LookAction = LoadObject<UInputAction>(nullptr, TEXT("/Game/ThirdPerson/Input/Actions/IA_Look.IA_Look"));
 	if (IAbilitySystemInterface *owner = this->GetOwner<IAbilitySystemInterface>())
 	{
 		this->OwnerASC = owner->GetAbilitySystemComponent();
+		this->CooldownSpec = FGameplayEffectSpec((UEffectGenericCooldown *)UEffectGenericCooldown::StaticClass()->GetDefaultObject(), this->OwnerASC->MakeEffectContext(), 1.0f);
+		this->CooldownSpec.SetSetByCallerMagnitude(Tags::EffectType::cooldown, 1.0f);
 	}
 	this->CollisionObject.AddObjectTypesToQuery(ECollisionChannel::ECC_GameTraceChannel1);
 	this->ActorsToIgnore.AddIgnoredActor(this->GetOwner());
@@ -47,13 +53,13 @@ void UComponentLockon::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
-	if(!this->LockonTarget)
+	if (!this->LockonTarget)
 	{
 		this->SetComponentTickEnabled(false);
 		return;
 	}
 	AController *controller = this->MyOwner->GetController();
-	if(!controller->LineOfSightTo(this->LockonTarget, this->MyOwner->GetFollowCamera()->GetComponentLocation()))
+	if (!controller->LineOfSightTo(this->LockonTarget, this->MyOwner->GetFollowCamera()->GetComponentLocation()))
 	{
 		this->LockonTarget = nullptr;
 		this->SetComponentTickEnabled(false);
@@ -62,18 +68,18 @@ void UComponentLockon::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	FRotator targetRot = UKismetMathLibrary::FindLookAtRotation(this->MyOwner->GetActorLocation(), this->LockonTarget->GetActorLocation());
 	targetRot.Pitch -= 20;
 	controller->SetControlRotation(
-		UKismetMathLibrary::RInterpTo(controller->GetControlRotation(), targetRot, DeltaTime, 10.0f)
-	);
+		UKismetMathLibrary::RInterpTo(controller->GetControlRotation(), targetRot, DeltaTime, 10.0f));
 }
 
 void UComponentLockon::SetupMyInputs(UEnhancedInputComponent *input)
 {
 	input->BindAction(this->LockonAction, ETriggerEvent::Started, this, &UComponentLockon::Lockon);
+	input->BindAction(this->LookAction, ETriggerEvent::Triggered, this, &UComponentLockon::Switch);
 }
 
 void UComponentLockon::Lockon()
 {
-	if(this->LockonTarget)
+	if (this->LockonTarget)
 	{
 		this->LockonTarget = nullptr;
 		this->SetComponentTickEnabled(false);
@@ -98,18 +104,81 @@ void UComponentLockon::Lockon()
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, result.GetActor()->GetName());
 		this->LockonTarget = result.GetActor();
 		this->SetComponentTickEnabled(true);
+		this->CooldownHandle = this->OwnerASC->ApplyGameplayEffectSpecToSelf(this->CooldownSpec);
 	}
-	UKismetSystemLibrary::BoxTraceSingle(
-		this->GetWorld(),
-		start,
-		end,
-		FVector(100, 400, 400),
-		rot,
-		ETraceTypeQuery::TraceTypeQuery_MAX,
-		false,
-		TArray<AActor *>(),
-		EDrawDebugTrace::ForDuration,
-		result,
-		false,
-		FLinearColor::Blue);
+}
+
+void UComponentLockon::Switch(const FInputActionValue &Value)
+{
+	if (!this->LockonTarget)
+	{
+		return;
+	}
+	float value = Value.Get<FVector2D>().X;
+	if (value >= 20.0f || value <= -20.0f)
+	{
+		if (this->OwnerASC->GetActiveGameplayEffect(this->CooldownHandle))
+		{
+			return;
+		}
+		TArray<FHitResult> results;
+		FVector start = this->MyOwner->GetFollowCamera()->GetComponentLocation();
+		FRotator rot = this->MyOwner->GetFollowCamera()->GetComponentRotation();
+		rot.Pitch += 20.0f;
+		FVector rotVector = rot.Vector();
+		start += rotVector * (this->MyOwner->GetCameraBoom()->TargetArmLength + this->CollisionShape.Box.HalfExtentX);
+		start += rot.RotateVector(FVector(0, (value >= 20.0f ? 1 : -1), 0)) * this->CollisionShape.Box.HalfExtentY;
+		FVector end = start + rotVector * 3000.0f;
+		if (this->GetWorld()->SweepMultiByObjectType(
+				results,
+				start,
+				end,
+				FQuat(rot),
+				this->CollisionObject,
+				this->CollisionShape,
+				this->ActorsToIgnore))
+		{
+			AActor *trueTarget = nullptr;
+			double distance = MaxValue::MaxDouble;
+			FVector baseLocation = this->LockonTarget->GetActorLocation();
+			for (int i = 0; i < (results.Num() <= MaxValue::TraceTarget ? results.Num() : MaxValue::TraceTarget); i++)
+			{
+				if (results[i].GetActor() == this->LockonTarget)
+				{
+					continue;
+				}
+				double test = FVector::Distance(results[i].GetActor()->GetActorLocation(), baseLocation);
+				if (test < distance)
+				{
+					distance = test;
+					trueTarget = results[i].GetActor();
+				}
+			}
+			for (int i = 0; i < results.Num(); i++)
+			{
+				GEngine->AddOnScreenDebugMessage(-1,i/5,FColor::Black, results[i].GetActor()->GetName());
+			}
+			
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("%d targets"), results.Num()));
+			if (trueTarget)
+			{
+				this->LockonTarget = trueTarget;
+				this->CooldownHandle = this->OwnerASC->ApplyGameplayEffectSpecToSelf(this->CooldownSpec);
+			}
+		}
+		FHitResult t;
+		UKismetSystemLibrary::BoxTraceSingle(
+			this->GetWorld(),
+			start,
+			end,
+			FVector(100, 400, 400),
+			rot,
+			ETraceTypeQuery::TraceTypeQuery_MAX,
+			false,
+			TArray<AActor *>(),
+			EDrawDebugTrace::ForDuration,
+			t,
+			false,
+			FLinearColor::Blue);
+	}
 }
