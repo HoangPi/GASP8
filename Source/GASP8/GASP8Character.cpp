@@ -12,6 +12,7 @@
 #include "InputActionValue.h"
 
 #include "MyComponents/Movement/ComponentSprint.h"
+#include "MyComponents/Combat/Lockon/ComponentLockon.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -122,6 +123,10 @@ void AGASP8Character::Move(const FInputActionValue& Value)
 void AGASP8Character::Look(const FInputActionValue& Value)
 {
 	// input is a Vector2D
+	if(this->MyLockonComponent->LockonTarget)
+	{
+		return;
+	}
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
@@ -135,4 +140,5 @@ void AGASP8Character::Look(const FInputActionValue& Value)
 void AGASP8Character::SetupMyComponents()
 {
 	this->CreateDefaultSubobject<UComponentSprint>(FName("MovementComponent"));
+	this->MyLockonComponent = this->CreateDefaultSubobject<UComponentLockon>(FName("LockonComponent"));
 }
