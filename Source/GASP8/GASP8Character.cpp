@@ -12,6 +12,7 @@
 #include "InputActionValue.h"
 
 #include "MyComponents/Movement/ComponentSprint.h"
+#include "MyComponents/Combat/Lockon/ComponentLockon.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -135,4 +136,5 @@ void AGASP8Character::Look(const FInputActionValue& Value)
 void AGASP8Character::SetupMyComponents()
 {
 	this->CreateDefaultSubobject<UComponentSprint>(FName("MovementComponent"));
+	this->MyLockonComponent = this->CreateDefaultSubobject<UComponentLockon>(FName("LockonComponent"));
 }

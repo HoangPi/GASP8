@@ -52,6 +52,7 @@ public:
 	AGASP8Character();
 
 	UAbilitySystemComponent *AbilitySystemComponent;
+	class UComponentLockon *MyLockonComponent;
 
 	inline void SetupMyComponents();
 
