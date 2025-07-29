@@ -22,7 +22,9 @@ UComponentLockon::UComponentLockon()
 	if (IAbilitySystemInterface *owner = this->GetOwner<IAbilitySystemInterface>())
 	{
 		this->OwnerASC = owner->GetAbilitySystemComponent();
-		this->CooldownSpec = FGameplayEffectSpec((UEffectGenericCooldown *)UEffectGenericCooldown::StaticClass()->GetDefaultObject(), this->OwnerASC->MakeEffectContext(), 1.0f);
+		UEffectGenericCooldown *cooldownTemp = this->CreateDefaultSubobject<UEffectGenericCooldown>(FName("SwitchCooldown"));
+		cooldownTemp->SetCooldown(1.0f);
+		this->CooldownSpec = FGameplayEffectSpec(cooldownTemp, this->OwnerASC->MakeEffectContext(), 1.0f);
 		this->CooldownSpec.SetSetByCallerMagnitude(Tags::EffectType::cooldown, 1.0f);
 	}
 	this->CollisionObject.AddObjectTypesToQuery(ECollisionChannel::ECC_GameTraceChannel1);
