@@ -10,7 +10,7 @@
 
 UAbilityGuard::UAbilityGuard()
 {
-    this->InstancingPolicy = EGameplayAbilityInstancingPolicy::NonInstanced;
+    this->InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
     this->ShouldEnterCombat = false;
     this->ActivationOwnedTags.AddTag(Tags::PlayerState::manual_guard);
 }
