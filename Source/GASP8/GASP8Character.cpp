@@ -13,6 +13,7 @@
 
 #include "MyComponents/Movement/ComponentSprint.h"
 #include "MyComponents/Combat/Lockon/ComponentLockon.h"
+#include "MyComponents/Combat/Guard/ComponentGuard.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -140,5 +141,6 @@ void AGASP8Character::Look(const FInputActionValue& Value)
 void AGASP8Character::SetupMyComponents()
 {
 	this->CreateDefaultSubobject<UComponentSprint>(FName("MovementComponent"));
+	this->CreateDefaultSubobject<UComponentGuard>(FName("MyGuardComponent"));
 	this->MyLockonComponent = this->CreateDefaultSubobject<UComponentLockon>(FName("LockonComponent"));
 }
