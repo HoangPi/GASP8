@@ -13,5 +13,5 @@ UEffectDeflect::UEffectDeflect()
     this->StackExpirationPolicy = EGameplayEffectStackingExpirationPolicy::ClearEntireStack;
 
     this->DurationPolicy = EGameplayEffectDurationType::HasDuration;
-    this->DurationMagnitude = FGameplayEffectModifierMagnitude(DeflectDuration);
+    this->DurationMagnitude = FGameplayEffectModifierMagnitude(2.0f);
 }

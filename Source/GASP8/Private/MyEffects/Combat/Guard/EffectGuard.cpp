@@ -13,5 +13,5 @@ UEffectGuard::UEffectGuard()
     this->StackExpirationPolicy = EGameplayEffectStackingExpirationPolicy::ClearEntireStack;
 
     this->DurationPolicy = EGameplayEffectDurationType::HasDuration;
-    this->DurationMagnitude = FGameplayEffectModifierMagnitude(GuardDuration);
+    this->DurationMagnitude = FGameplayEffectModifierMagnitude(2.0f);
 }
