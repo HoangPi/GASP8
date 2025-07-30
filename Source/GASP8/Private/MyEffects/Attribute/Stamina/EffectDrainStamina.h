@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameplayEffect.h"
+
+#include "GameplayEffectComponents/TargetTagRequirementsGameplayEffectComponent.h"
+
 #include "EffectDrainStamina.generated.h"
 
 /**

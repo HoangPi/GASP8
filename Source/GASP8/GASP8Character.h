@@ -56,6 +56,17 @@ public:
 
 	inline void SetupMyComponents();
 
+	void Tick(float DeltaSeconds);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	bool ShouldMove;
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	bool IsFalling;
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	FVector Velocity;
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	float GroundSpeed;
+
 protected:
 	/** Called for movement input */
 	void Move(const FInputActionValue &Value);
