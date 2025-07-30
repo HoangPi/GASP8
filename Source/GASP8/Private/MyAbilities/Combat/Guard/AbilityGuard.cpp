@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilityGuard.h"
+#include "MyAbilities/Combat/Guard/AbilityGuard.h"
 
 #include "MyEffects/PlayerState/EffectOutOfCombat.h"
 #include "MyTags/MyTags.h"
