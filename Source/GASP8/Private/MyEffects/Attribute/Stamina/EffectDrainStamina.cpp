@@ -17,4 +17,9 @@ UEffectDrainStamina::UEffectDrainStamina()
     mod.ModifierMagnitude = FGameplayEffectModifierMagnitude(callerMag);
     mod.ModifierOp = EGameplayModOp::Additive;
     this->Modifiers.Add(mod);
+
+    UTargetTagRequirementsGameplayEffectComponent *comp = this->CreateDefaultSubobject<UTargetTagRequirementsGameplayEffectComponent>(FName("DontCare"));
+    comp->OngoingTagRequirements.IgnoreTags.AddTag(Tags::PlayerState::on_air);
+    comp->OngoingTagRequirements.RequireTags.AddTag(Tags::PlayerState::should_move);
+    this->GEComponents.Add(comp);
 }
