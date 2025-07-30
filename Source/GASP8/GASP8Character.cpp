@@ -147,7 +147,7 @@ void AGASP8Character::Tick(float DeltaSeconds)
 	this->Velocity = this->GetCharacterMovement()->Velocity;
 	this->GroundSpeed = FVector(Velocity.X, Velocity.Y, 0).Length();
 	if (
-		this->GroundSpeed > 3 &&
+		this->GroundSpeed > 30 &&
 		UKismetMathLibrary::NotEqual_VectorVector(this->GetCharacterMovement()->GetCurrentAcceleration(), FVector(0), 0))
 	{
 		if (!this->ShouldMove)
