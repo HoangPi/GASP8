@@ -17,6 +17,9 @@ class UAbilityGuard : public UAbilityBase
 public:
 	UAbilityGuard();
 
+	FActiveGameplayEffectHandle DeflectHandle;
+	FActiveGameplayEffectHandle GuardHandle;
+
 	void ActivateAbility(
 		FGameplayAbilitySpecHandle Handle, 
 		const FGameplayAbilityActorInfo *ActorInfo, 
