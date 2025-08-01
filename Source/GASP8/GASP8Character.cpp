@@ -16,6 +16,7 @@
 #include "MyComponents/Combat/Guard/ComponentGuard.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "MyTags/MyTags.h"
+#include "MyAttributes/Health/AttributeHealth.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -181,5 +182,7 @@ void AGASP8Character::SetupMyComponents()
 {
 	this->CreateDefaultSubobject<UComponentSprint>(FName("MovementComponent"));
 	this->CreateDefaultSubobject<UComponentGuard>(FName("MyGuardComponent"));
+	UAttributeHealth *healthAttribute = this->CreateDefaultSubobject<UAttributeHealth>(FName("HealthAttribute"));
 	this->MyLockonComponent = this->CreateDefaultSubobject<UComponentLockon>(FName("LockonComponent"));
+	this->AbilitySystemComponent->AddAttributeSetSubobject(healthAttribute);
 }
