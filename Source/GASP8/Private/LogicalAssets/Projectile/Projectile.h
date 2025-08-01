@@ -7,6 +7,7 @@
 
 #include "Components/BoxComponent.h"
 #include "Components/ArrowComponent.h"
+#include "AbilitySystemInterface.h"
 
 #include "Projectile.generated.h"
 
@@ -37,6 +38,16 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetTarget(AActor *HomingTarget) { this->MyTarget = HomingTarget; };
+
+	virtual void NotifyHit(
+		UPrimitiveComponent *MyComp,
+		AActor *Other,
+		UPrimitiveComponent *OtherComp,
+		bool bSelfMoved,
+		FVector HitLocation,
+		FVector HitNormal,
+		FVector NormalImpulse,
+		const FHitResult &Hit);
 
 protected:
 	// Called when the game starts or when spawned

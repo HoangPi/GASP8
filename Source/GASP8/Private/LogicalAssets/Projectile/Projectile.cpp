@@ -53,3 +53,21 @@ void AProjectile::Tick(float DeltaTime)
 		nullptr,
 		ETeleportType::None);
 }
+
+void AProjectile::NotifyHit(
+	UPrimitiveComponent *MyComp, 
+	AActor *Other, 
+	UPrimitiveComponent *OtherComp, 
+	bool bSelfMoved, 
+	FVector HitLocation, 
+	FVector HitNormal, 
+	FVector NormalImpulse, 
+	const FHitResult &Hit)
+{
+	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
+	if(IAbilitySystemInterface *hitASC = Cast<IAbilitySystemInterface>(Other))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, FString("You've been hit by, smooth criminal"));
+	}
+	this->Destroy();
+}
