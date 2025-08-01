@@ -35,6 +35,8 @@ public:
 	bool ShouldHaveTarget;
 	UPROPERTY(EditDefaultsOnly, Category = "Property")
 	float TimeToLive;
+	UPROPERTY(EditDefaultsOnly, Category = "Property")
+	float Damage;
 	AActor *MyTarget;
 
 	UFUNCTION(BlueprintCallable)
