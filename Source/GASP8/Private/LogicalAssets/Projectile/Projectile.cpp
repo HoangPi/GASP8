@@ -22,6 +22,7 @@ AProjectile::AProjectile()
 	this->TimeToLive = 3.0f;
 	this->ShouldHaveTarget = false;
 	this->MyTarget = nullptr;
+	this->Damage = 100.0f;
 }
 
 // Called when the game starts or when spawned
@@ -70,6 +71,7 @@ void AProjectile::NotifyHit(
 	{
 		FGameplayEventData payload;
 		payload.EventTag = Tags::Ability::get_hit;
+		payload.EventMagnitude = this->Damage;
 		hitASC->GetAbilitySystemComponent()->HandleGameplayEvent(Tags::Ability::get_hit, &payload);
 	}
 	this->Destroy();

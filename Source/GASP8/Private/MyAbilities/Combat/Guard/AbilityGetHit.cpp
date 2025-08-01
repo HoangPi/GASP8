@@ -4,6 +4,7 @@
 
 #include "MyTags/MyTags.h"
 #include "MyAbilities/Combat/Guard/AbilityGuard.h"
+#include "MyEffects/Attribute/Health/EffectReduceHealth.h"
 
 UAbilityGetHit::UAbilityGetHit()
 {
@@ -44,7 +45,11 @@ void UAbilityGetHit::ActivateAbility(
     }
     else
     {
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString("Full hit"));
+        FGameplayEffectSpec spec = FGameplayEffectSpec(
+            (UEffectReduceHealth *)UEffectReduceHealth::StaticClass()->GetDefaultObject(),
+            ownerASC->MakeEffectContext());
+        spec.SetSetByCallerMagnitude(Tags::Attribute::health, -TriggerEventData->EventMagnitude);
+        ownerASC->ApplyGameplayEffectSpecToSelf(spec);
     }
     this->EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
 }
