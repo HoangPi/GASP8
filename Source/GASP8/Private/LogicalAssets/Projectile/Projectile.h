@@ -35,6 +35,9 @@ public:
 	float TimeToLive;
 	AActor *MyTarget;
 
+	UFUNCTION(BlueprintCallable)
+	void SetTarget(AActor *HomingTarget) { this->MyTarget = HomingTarget; };
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

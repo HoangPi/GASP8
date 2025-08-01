@@ -40,7 +40,7 @@ void AProjectile::Tick(float DeltaTime)
 		{
 			return;
 		}
-		FRotator dif = UKismetMathLibrary::NormalizedDeltaRotator(currentRot, UKismetMathLibrary::FindLookAtRotation(this->GetActorLocation(), this->MyTarget->GetActorLocation()));
+		FRotator dif = UKismetMathLibrary::NormalizedDeltaRotator(UKismetMathLibrary::FindLookAtRotation(this->GetActorLocation(), this->MyTarget->GetActorLocation()), currentRot);
 		double max = this->MaxTurningSpeed * DeltaTime;
 		double min = -max;
 		currentRot.Pitch += CLAMP(dif.Pitch, min, max);
