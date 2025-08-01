@@ -3,6 +3,7 @@
 #include "LogicalAssets/Projectile/Projectile.h"
 
 #include "Ultilities/Macro.h"
+#include "MyTags/MyTags.h"
 #include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
@@ -67,7 +68,9 @@ void AProjectile::NotifyHit(
 	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
 	if(IAbilitySystemInterface *hitASC = Cast<IAbilitySystemInterface>(Other))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, FString("You've been hit by, smooth criminal"));
+		FGameplayEventData payload;
+		payload.EventTag = Tags::Ability::get_hit;
+		hitASC->GetAbilitySystemComponent()->HandleGameplayEvent(Tags::Ability::get_hit, &payload);
 	}
 	this->Destroy();
 }

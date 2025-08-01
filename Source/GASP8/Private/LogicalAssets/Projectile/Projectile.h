@@ -8,6 +8,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/ArrowComponent.h"
 #include "AbilitySystemInterface.h"
+#include "AbilitySystemComponent.h"
 
 #include "Projectile.generated.h"
 
