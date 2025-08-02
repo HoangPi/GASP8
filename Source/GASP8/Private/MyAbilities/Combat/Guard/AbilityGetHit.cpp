@@ -5,6 +5,7 @@
 #include "MyTags/MyTags.h"
 #include "MyAbilities/Combat/Guard/AbilityGuard.h"
 #include "MyEffects/Attribute/Health/EffectReduceHealth.h"
+#include "MyEffects/Attribute/Stamina/EffectReduceStamina.h"
 
 UAbilityGetHit::UAbilityGetHit()
 {
@@ -31,23 +32,40 @@ void UAbilityGetHit::ActivateAbility(
     }
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
     UAbilitySystemComponent *ownerASC = ActorInfo->AbilitySystemComponent.Get();
+    FGameplayEffectContextHandle context = ownerASC->MakeEffectContext();
+    // Could have init right here
+    FGameplayEffectSpec staminaSpec;
+
+    // If is deflecting
+    // But for skisue branch it can skip the init steps
     if (ownerASC->GetActiveGameplayEffect(*this->DeflectHandle))
     {
         ownerASC->RemoveActiveGameplayEffect(*this->DeflectHandle, 1);
+        staminaSpec = FGameplayEffectSpec((UEffectReduceStamina *)UEffectReduceStamina::StaticClass()->GetDefaultObject(), context);
+        staminaSpec.SetSetByCallerMagnitude(Tags::Attribute::stamina, -TriggerEventData->EventMagnitude / 2);
+        ownerASC->ApplyGameplayEffectSpecToSelf(staminaSpec);
     }
+    // If is "guarding"
     else if (ownerASC->GetActiveGameplayEffect(*this->GuardHandle))
     {
         ownerASC->RemoveActiveGameplayEffect(*this->GuardHandle, 1);
+        staminaSpec = FGameplayEffectSpec((UEffectReduceStamina *)UEffectReduceStamina::StaticClass()->GetDefaultObject(), context);
+        staminaSpec.SetSetByCallerMagnitude(Tags::Attribute::stamina, -TriggerEventData->EventMagnitude);
+        ownerASC->ApplyGameplayEffectSpecToSelf(staminaSpec);
     }
+    // If is guarding
     else if (ownerASC->HasMatchingGameplayTag(Tags::PlayerState::manual_guard))
     {
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString("Dull block"));
+        staminaSpec = FGameplayEffectSpec((UEffectReduceStamina *)UEffectReduceStamina::StaticClass()->GetDefaultObject(), context);
+        staminaSpec.SetSetByCallerMagnitude(Tags::Attribute::stamina, -TriggerEventData->EventMagnitude);
+        ownerASC->ApplyGameplayEffectSpecToSelf(staminaSpec);
     }
+    // Skisue
     else
     {
         FGameplayEffectSpec spec = FGameplayEffectSpec(
             (UEffectReduceHealth *)UEffectReduceHealth::StaticClass()->GetDefaultObject(),
-            ownerASC->MakeEffectContext());
+            context);
         spec.SetSetByCallerMagnitude(Tags::Attribute::health, -TriggerEventData->EventMagnitude);
         ownerASC->ApplyGameplayEffectSpecToSelf(spec);
     }
