@@ -9,10 +9,11 @@
 UEffectDisable::UEffectDisable()
 {
     this->DurationPolicy = EGameplayEffectDurationType::HasDuration;
-    this->DurationMagnitude = FGameplayEffectModifierMagnitude(2.0f);
+    this->DurationMagnitude = FGameplayEffectModifierMagnitude(5.0f);
 
     UTargetTagsGameplayEffectComponent *comp = this->CreateDefaultSubobject<UTargetTagsGameplayEffectComponent>(FName("AddDisableTag"));
     ((FInheritedTagContainer &)comp->GetConfiguredTargetTagChanges()).AddTag(Tags::PlayerState::disabled);
+    comp->SetAndApplyTargetTagChanges(comp->GetConfiguredTargetTagChanges());
 
     UAdditionalEffectsGameplayEffectComponent *comp2 = this->CreateDefaultSubobject<UAdditionalEffectsGameplayEffectComponent>(FName("CallAmbulance"));
     FConditionalGameplayEffect additionalEffect;
