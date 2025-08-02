@@ -16,7 +16,7 @@ UEffectReduceStamina::UEffectReduceStamina()
     setByCaller.DataTag = Tags::Attribute::stamina;
     mod.Attribute = UAttributeStamina::GetStaminaAttribute();
     mod.ModifierOp = EGameplayModOp::Additive;
-    mod.ModifierMagnitude = FGameplayEffectModifierMagnitude();
+    mod.ModifierMagnitude = FGameplayEffectModifierMagnitude(setByCaller);
 
     this->Modifiers.Add(mod);
 }
