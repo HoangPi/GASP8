@@ -6,6 +6,7 @@
 #include "GameplayEffect.h"
 
 #include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
+#include "GameplayEffectComponents/AdditionalEffectsGameplayEffectComponent.h"
 
 #include "EffectDisable.generated.h"
 

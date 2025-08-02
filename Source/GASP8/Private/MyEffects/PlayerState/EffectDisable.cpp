@@ -4,6 +4,7 @@
 #include "MyEffects/PlayerState/EffectDisable.h"
 
 #include "MyTags/MyTags.h"
+#include "MyEffects/PlayerState/EffectOutOfCombat.h"
 
 UEffectDisable::UEffectDisable()
 {
@@ -13,5 +14,11 @@ UEffectDisable::UEffectDisable()
     UTargetTagsGameplayEffectComponent *comp = this->CreateDefaultSubobject<UTargetTagsGameplayEffectComponent>(FName("AddDisableTag"));
     ((FInheritedTagContainer &)comp->GetConfiguredTargetTagChanges()).AddTag(Tags::PlayerState::disabled);
 
+    UAdditionalEffectsGameplayEffectComponent *comp2 = this->CreateDefaultSubobject<UAdditionalEffectsGameplayEffectComponent>(FName("CallAmbulance"));
+    FConditionalGameplayEffect additionalEffect;
+    additionalEffect.EffectClass = UEffectOutOfCombat::StaticClass();
+    comp2->OnApplicationGameplayEffects.Add(additionalEffect);
+
     this->GEComponents.Add(comp);
+    this->GEComponents.Add(comp2);
 }
