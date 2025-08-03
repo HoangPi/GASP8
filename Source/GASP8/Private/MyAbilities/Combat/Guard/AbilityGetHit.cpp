@@ -19,6 +19,7 @@ UAbilityGetHit::UAbilityGetHit()
     this->AbilityTriggers.Add(triggerEvent);
     this->DeflectHandle = nullptr;
     this->GuardHandle = nullptr;
+    this->ActivationBlockedTags.RemoveTag(Tags::PlayerState::disabled);
 }
 
 void UAbilityGetHit::ActivateAbility(
@@ -62,6 +63,7 @@ void UAbilityGetHit::ActivateAbility(
                 1.0f,
                 context
             );
+            ownerASC->CancelAbilities(&UAbilityBase::CancelOnDisableTags);
         }
     }
     // If is guarding
@@ -77,6 +79,7 @@ void UAbilityGetHit::ActivateAbility(
                 1.0f,
                 context
             );
+            ownerASC->CancelAbilities(&UAbilityBase::CancelOnDisableTags);
         }
     }
     // Skisue
