@@ -16,4 +16,6 @@ UEffectOutOfCombat::UEffectOutOfCombat()
 
     UAdditionalEffectsGameplayEffectComponent *comp = this->CreateDefaultSubobject<UAdditionalEffectsGameplayEffectComponent>(FName("uhmmmm"));
     comp->OnCompleteNormal.Add(UEffectRestoreStamina::StaticClass());
+
+    this->GEComponents.Add(comp);
 }

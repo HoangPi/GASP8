@@ -22,9 +22,8 @@ UComponentLockon::UComponentLockon()
 	if (IAbilitySystemInterface *owner = this->GetOwner<IAbilitySystemInterface>())
 	{
 		this->OwnerASC = owner->GetAbilitySystemComponent();
-		UEffectGenericCooldown *cooldownTemp = this->CreateDefaultSubobject<UEffectGenericCooldown>(FName("SwitchCooldown"));
-		cooldownTemp->SetCooldown(1.0f);
-		this->CooldownSpec = FGameplayEffectSpec(cooldownTemp, this->OwnerASC->MakeEffectContext(), 1.0f);
+		this->cooldownEffect = this->CreateDefaultSubobject<UEffectGenericCooldown>(FName("SwitchCooldown"));
+		this->cooldownEffect->SetCooldown(1.0f);
 	}
 	this->CollisionObject.AddObjectTypesToQuery(ECollisionChannel::ECC_GameTraceChannel1);
 	this->ActorsToIgnore.AddIgnoredActor(this->GetOwner());
@@ -38,6 +37,7 @@ void UComponentLockon::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
+	this->CooldownSpec = FGameplayEffectSpec(this->cooldownEffect, this->OwnerASC->MakeEffectContext(), 1.0f);
 	if (AGASP8Character *owner = this->GetOwner<AGASP8Character>())
 	{
 		if (UEnhancedInputComponent *input = Cast<UEnhancedInputComponent>(owner->InputComponent))
@@ -157,9 +157,9 @@ void UComponentLockon::Switch(const FInputActionValue &Value)
 			}
 			for (int i = 0; i < results.Num(); i++)
 			{
-				GEngine->AddOnScreenDebugMessage(-1,i/5,FColor::Black, results[i].GetActor()->GetName());
+				GEngine->AddOnScreenDebugMessage(-1, i / 5, FColor::Black, results[i].GetActor()->GetName());
 			}
-			
+
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("%d targets"), results.Num()));
 			if (trueTarget)
 			{
