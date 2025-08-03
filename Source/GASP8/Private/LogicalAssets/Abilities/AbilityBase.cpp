@@ -7,13 +7,13 @@
 #include "MyEffects/PlayerState/EffectOutOfCombat.h"
 
 FGameplayTagContainer UAbilityBase::IdleTags;
+FGameplayTagContainer UAbilityBase::CancelOnDisableTags;
 
 UAbilityBase::UAbilityBase()
 {
-    if(!UAbilityBase::IdleTags.HasTagExact(Tags::EffectType::idle))
-    {
-        UAbilityBase::IdleTags.AddTag(Tags::EffectType::idle);
-    }
+    UAbilityBase::IdleTags.AddTag(Tags::EffectType::idle);
+    UAbilityBase::CancelOnDisableTags.AddTag(Tags::PlayerState::disabled);
+    
     this->ActivationBlockedTags.AddTag(Tags::PlayerState::disabled);
     ((FGameplayTagContainer &)this->GetAssetTags()).AddTag(Tags::Ability::cancel_on_disable);
 }
