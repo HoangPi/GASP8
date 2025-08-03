@@ -23,6 +23,7 @@ public:
 	bool ShouldEnterCombat = false;
 
 	static FGameplayTagContainer IdleTags;
+	static FGameplayTagContainer CancelOnDisableTags;
 
 	UAbilityBase();
 
