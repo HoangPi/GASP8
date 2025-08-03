@@ -105,6 +105,10 @@ void AGASP8Character::SetupPlayerInputComponent(UInputComponent *PlayerInputComp
 void AGASP8Character::Move(const FInputActionValue &Value)
 {
 	// input is a Vector2D
+	if(this->AbilitySystemComponent->HasMatchingGameplayTag(Tags::PlayerState::disabled))
+	{
+		return;
+	}
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
