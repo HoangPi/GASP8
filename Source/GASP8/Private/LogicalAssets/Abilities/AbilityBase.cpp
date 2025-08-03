@@ -12,8 +12,8 @@ FGameplayTagContainer UAbilityBase::CancelOnDisableTags;
 UAbilityBase::UAbilityBase()
 {
     UAbilityBase::IdleTags.AddTag(Tags::EffectType::idle);
-    UAbilityBase::CancelOnDisableTags.AddTag(Tags::PlayerState::disabled);
-    
+    UAbilityBase::CancelOnDisableTags.AddTag(Tags::Ability::cancel_on_disable);
+
     this->ActivationBlockedTags.AddTag(Tags::PlayerState::disabled);
     ((FGameplayTagContainer &)this->GetAssetTags()).AddTag(Tags::Ability::cancel_on_disable);
 }
