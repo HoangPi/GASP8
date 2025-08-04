@@ -9,7 +9,7 @@
 UEffectDisable::UEffectDisable()
 {
     this->DurationPolicy = EGameplayEffectDurationType::HasDuration;
-    this->DurationMagnitude = FGameplayEffectModifierMagnitude(5.0f);
+    this->DurationMagnitude = FGameplayEffectModifierMagnitude(8.7f);
 
     UTargetTagsGameplayEffectComponent *comp = this->CreateDefaultSubobject<UTargetTagsGameplayEffectComponent>(FName("AddDisableTag"));
     ((FInheritedTagContainer &)comp->GetConfiguredTargetTagChanges()).AddTag(Tags::PlayerState::disabled);
