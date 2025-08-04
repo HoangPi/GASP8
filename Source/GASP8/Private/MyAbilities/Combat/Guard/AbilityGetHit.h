@@ -4,6 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "LogicalAssets/Abilities/AbilityBase.h"
+
+#include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
+#include "Animation/AnimSequence.h"
+
 #include "AbilityGetHit.generated.h"
 
 /**

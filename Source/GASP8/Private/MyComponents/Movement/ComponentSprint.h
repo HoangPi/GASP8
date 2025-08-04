@@ -24,6 +24,7 @@ public:
 	UAbilitySystemComponent *OwnerASC;
 	UInputAction *SprintAction;
 	FGameplayAbilitySpecHandle SprintHandle;
+	FGameplayAbilitySpecHandle RecoverHandle;
 
 	inline void SetupMyInputs(UEnhancedInputComponent *input);
 

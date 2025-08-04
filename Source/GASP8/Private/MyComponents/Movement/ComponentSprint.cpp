@@ -6,6 +6,8 @@
 #include "GASP8/GASP8Character.h"
 #include "MyAbilities/Movement/AbilitySprint.h"
 #include "MyAttributes/Stamina/AttributeStamina.h"
+#include "MyAbilities/Combat/DisableAndRecover/AbilityDisableAndRecover.h"
+#include "MyTags/MyTags.h"
 
 // Sets default values for this component's properties
 UComponentSprint::UComponentSprint()
@@ -20,6 +22,7 @@ UComponentSprint::UComponentSprint()
 		this->OwnerASC = owner->GetAbilitySystemComponent();
 		OwnerASC->AddAttributeSetSubobject<UAttributeStamina>(this->CreateDefaultSubobject<UAttributeStamina>(FName("StaminaAttribute")));
 		this->SprintHandle = this->OwnerASC->K2_GiveAbility(UAbilitySprint::StaticClass());
+		this->RecoverHandle = this->OwnerASC->K2_GiveAbility(UAbilityDisableAndRecover::StaticClass());
 	}
 	this->SprintAction = LoadObject<UInputAction>(nullptr, TEXT("/Game/ThirdPerson/Input/Actions/IA_Sprint.IA_Sprint"));
 }
@@ -42,6 +45,11 @@ void UComponentSprint::BeginPlay()
 
 void UComponentSprint::Sprint()
 {
+	if(this->OwnerASC->HasMatchingGameplayTag(Tags::PlayerState::disabled))
+	{
+		this->OwnerASC->CancelAbilityHandle(this->RecoverHandle);
+		return;
+	}
 	this->OwnerASC->TryActivateAbility(this->SprintHandle);
 }
 

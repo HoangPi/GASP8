@@ -8,6 +8,7 @@
 #include "MyEffects/Attribute/Stamina/EffectReduceStamina.h"
 #include "MyAttributes/Stamina/AttributeStamina.h"
 #include "MyEffects/PlayerState/EffectDisable.h"
+#include "MyAbilities/Combat/DisableAndRecover/AbilityDisableAndRecover.h"
 
 UAbilityGetHit::UAbilityGetHit()
 {
@@ -48,6 +49,7 @@ void UAbilityGetHit::ActivateAbility(
         staminaSpec = FGameplayEffectSpec((UEffectReduceStamina *)UEffectReduceStamina::StaticClass()->GetDefaultObject(), context);
         staminaSpec.SetSetByCallerMagnitude(Tags::Attribute::stamina, -TriggerEventData->EventMagnitude / 2);
         ownerASC->ApplyGameplayEffectSpecToSelf(staminaSpec);
+        // this->EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
     }
     // If is "guarding"
     else if (ownerASC->GetActiveGameplayEffect(*this->GuardHandle))
@@ -56,14 +58,9 @@ void UAbilityGetHit::ActivateAbility(
         staminaSpec = FGameplayEffectSpec((UEffectReduceStamina *)UEffectReduceStamina::StaticClass()->GetDefaultObject(), context);
         staminaSpec.SetSetByCallerMagnitude(Tags::Attribute::stamina, -TriggerEventData->EventMagnitude);
         ownerASC->ApplyGameplayEffectSpecToSelf(staminaSpec);
-        if(ownerASC->GetGameplayAttributeValue(UAttributeStamina::GetStaminaAttribute(), unused) <= 0.0f)
+        if (ownerASC->GetGameplayAttributeValue(UAttributeStamina::GetStaminaAttribute(), unused) <= 0.0f)
         {
-            ownerASC->ApplyGameplayEffectToSelf(
-                (UEffectDisable *)UEffectDisable::StaticClass()->GetDefaultObject(),
-                1.0f,
-                context
-            );
-            ownerASC->CancelAbilities(&UAbilityBase::CancelOnDisableTags);
+            ownerASC->TryActivateAbilityByClass(UAbilityDisableAndRecover::StaticClass());
         }
     }
     // If is guarding
@@ -72,14 +69,9 @@ void UAbilityGetHit::ActivateAbility(
         staminaSpec = FGameplayEffectSpec((UEffectReduceStamina *)UEffectReduceStamina::StaticClass()->GetDefaultObject(), context);
         staminaSpec.SetSetByCallerMagnitude(Tags::Attribute::stamina, -TriggerEventData->EventMagnitude);
         ownerASC->ApplyGameplayEffectSpecToSelf(staminaSpec);
-        if(ownerASC->GetGameplayAttributeValue(UAttributeStamina::GetStaminaAttribute(), unused) <= 0.0f)
+        if (ownerASC->GetGameplayAttributeValue(UAttributeStamina::GetStaminaAttribute(), unused) <= 0.0f)
         {
-            ownerASC->ApplyGameplayEffectToSelf(
-                (UEffectDisable *)UEffectDisable::StaticClass()->GetDefaultObject(),
-                1.0f,
-                context
-            );
-            ownerASC->CancelAbilities(&UAbilityBase::CancelOnDisableTags);
+            ownerASC->TryActivateAbilityByClass(UAbilityDisableAndRecover::StaticClass());
         }
     }
     // Skisue
