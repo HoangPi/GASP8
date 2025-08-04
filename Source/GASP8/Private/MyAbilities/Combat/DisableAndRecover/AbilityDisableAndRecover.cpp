@@ -71,8 +71,9 @@ void UAbilityDisableAndRecover::CancelAbility(
         1.0f,
         0.0f,
         true);
+    animTask->OnCompleted.Add(this->OnMontageCompletedDelegate);
     animTask->ReadyForActivation();
-    Super::CancelAbility(Handle, ActorInfo, ActivationInfo, bReplicateCancelAbility);
+    this->CanRecover = false;
 }
 
 void UAbilityDisableAndRecover::NotifyMontageCompleted()
