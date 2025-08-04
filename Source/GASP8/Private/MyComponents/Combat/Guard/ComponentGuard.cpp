@@ -5,7 +5,6 @@
 #include "GASP8/GASP8Character.h"
 #include "MyAbilities/Combat/Guard/AbilityGuard.h"
 #include "MyAbilities/Combat/Guard/AbilityGetHit.h"
-#include "MyAbilities/Combat/DisableAndRecover/AbilityDisableAndRecover.h"
 
 // Sets default values for this component's properties
 UComponentGuard::UComponentGuard()
@@ -20,7 +19,6 @@ UComponentGuard::UComponentGuard()
 		this->OwnerASC = owner->GetAbilitySystemComponent();
 		this->GuardHandle = this->OwnerASC->K2_GiveAbility(UAbilityGuard::StaticClass());
 		this->OwnerASC->K2_GiveAbility(UAbilityGetHit::StaticClass());
-		this->OwnerASC->K2_GiveAbility(UAbilityDisableAndRecover::StaticClass());
 	}
 	this->GuardAction = LoadObject<UInputAction>(nullptr, TEXT("/Game/ThirdPerson/Input/Actions/IA_Guard.IA_Guard"));
 }
