@@ -8,6 +8,7 @@
 #include "MyEffects/Attribute/Stamina/EffectReduceStamina.h"
 #include "MyAttributes/Stamina/AttributeStamina.h"
 #include "MyEffects/PlayerState/EffectDisable.h"
+#include "MyAbilities/Combat/DisableAndRecover/AbilityDisableAndRecover.h"
 
 UAbilityGetHit::UAbilityGetHit()
 {
@@ -61,7 +62,7 @@ void UAbilityGetHit::ActivateAbility(
         ownerASC->ApplyGameplayEffectSpecToSelf(staminaSpec);
         if (ownerASC->GetGameplayAttributeValue(UAttributeStamina::GetStaminaAttribute(), unused) <= 0.0f)
         {
-            this->HandleDisablePlayer(ownerASC, context);
+            ownerASC->TryActivateAbilityByClass(UAbilityDisableAndRecover::StaticClass());
         }
     }
     // If is guarding
@@ -72,7 +73,7 @@ void UAbilityGetHit::ActivateAbility(
         ownerASC->ApplyGameplayEffectSpecToSelf(staminaSpec);
         if (ownerASC->GetGameplayAttributeValue(UAttributeStamina::GetStaminaAttribute(), unused) <= 0.0f)
         {
-            this->HandleDisablePlayer(ownerASC, context);
+            ownerASC->TryActivateAbilityByClass(UAbilityDisableAndRecover::StaticClass());
         }
     }
     // Skisue
