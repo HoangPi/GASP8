@@ -21,8 +21,6 @@ UAbilityGetHit::UAbilityGetHit()
     this->DeflectHandle = nullptr;
     this->GuardHandle = nullptr;
     this->ActivationBlockedTags.RemoveTag(Tags::PlayerState::disabled);
-    this->FallDownMontage = LoadObject<UAnimMontage>(nullptr, TEXT("/Game/ThirdPerson/Anim/FallDown_Montage.FallDown_Montage"));
-    this->OnFallDownCompleteDelegate.BindUFunction(this, FName("OnFallDownComplete"));
 }
 
 void UAbilityGetHit::ActivateAbility(
@@ -94,35 +92,4 @@ void UAbilityGetHit::OnAvatarSet(const FGameplayAbilityActorInfo *ActorInfo, con
     UAbilityGuard *guard = (UAbilityGuard *)ActorInfo->AbilitySystemComponent.Get()->FindAbilitySpecFromClass(UAbilityGuard::StaticClass())->GetPrimaryInstance();
     this->DeflectHandle = &guard->DeflectHandle;
     this->GuardHandle = &guard->GuardHandle;
-}
-
-void UAbilityGetHit::OnFallDownComplete()
-{
-    this->EndAbility(
-        this->GetCurrentAbilitySpecHandle(),
-        this->GetCurrentActorInfo(),
-        this->GetCurrentActivationInfo(),
-        false,
-        false);
-}
-
-void UAbilityGetHit::HandleDisablePlayer(UAbilitySystemComponent *ownerASC, FGameplayEffectContextHandle &context)
-{
-    ownerASC->ApplyGameplayEffectToSelf(
-        (UEffectDisable *)UEffectDisable::StaticClass()->GetDefaultObject(),
-        1.0f,
-        context);
-    ownerASC->CancelAbilities(&UAbilityBase::CancelOnDisableTags);
-    UAbilityTask_PlayMontageAndWait *animTask1 = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-        this,
-        FName("KnockPlayerDown"),
-        this->FallDownMontage,
-        1.0f,
-        FName(NAME_None),
-        false,
-        1.0f,
-        0.0f,
-        true);
-    animTask1->OnCompleted.Add(this->OnFallDownCompleteDelegate);
-    animTask1->ReadyForActivation();
 }

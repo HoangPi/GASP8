@@ -23,13 +23,6 @@ public:
 
 	FActiveGameplayEffectHandle *DeflectHandle;
 	FActiveGameplayEffectHandle *GuardHandle;
-	UAnimMontage *FallDownMontage;
-	FScriptDelegate OnFallDownCompleteDelegate;
-
-	UFUNCTION()
-	void OnFallDownComplete();
-
-	inline void HandleDisablePlayer(UAbilitySystemComponent *ownerASC, FGameplayEffectContextHandle &context);
 
 	virtual void OnAvatarSet(const FGameplayAbilityActorInfo *ActorInfo, const FGameplayAbilitySpec &Spec);
 
