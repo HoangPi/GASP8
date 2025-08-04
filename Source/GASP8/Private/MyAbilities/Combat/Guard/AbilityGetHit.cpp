@@ -20,6 +20,8 @@ UAbilityGetHit::UAbilityGetHit()
     this->DeflectHandle = nullptr;
     this->GuardHandle = nullptr;
     this->ActivationBlockedTags.RemoveTag(Tags::PlayerState::disabled);
+    this->FallDownMontage = LoadObject<UAnimMontage>(nullptr, TEXT("/Game/ThirdPerson/Anim/FallDown_Montage.FallDown_Montage"));
+    this->OnFallDownCompleteDelegate.BindUFunction(this, FName("OnFallDownComplete"));
 }
 
 void UAbilityGetHit::ActivateAbility(
@@ -48,6 +50,7 @@ void UAbilityGetHit::ActivateAbility(
         staminaSpec = FGameplayEffectSpec((UEffectReduceStamina *)UEffectReduceStamina::StaticClass()->GetDefaultObject(), context);
         staminaSpec.SetSetByCallerMagnitude(Tags::Attribute::stamina, -TriggerEventData->EventMagnitude / 2);
         ownerASC->ApplyGameplayEffectSpecToSelf(staminaSpec);
+        // this->EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
     }
     // If is "guarding"
     else if (ownerASC->GetActiveGameplayEffect(*this->GuardHandle))
@@ -56,14 +59,9 @@ void UAbilityGetHit::ActivateAbility(
         staminaSpec = FGameplayEffectSpec((UEffectReduceStamina *)UEffectReduceStamina::StaticClass()->GetDefaultObject(), context);
         staminaSpec.SetSetByCallerMagnitude(Tags::Attribute::stamina, -TriggerEventData->EventMagnitude);
         ownerASC->ApplyGameplayEffectSpecToSelf(staminaSpec);
-        if(ownerASC->GetGameplayAttributeValue(UAttributeStamina::GetStaminaAttribute(), unused) <= 0.0f)
+        if (ownerASC->GetGameplayAttributeValue(UAttributeStamina::GetStaminaAttribute(), unused) <= 0.0f)
         {
-            ownerASC->ApplyGameplayEffectToSelf(
-                (UEffectDisable *)UEffectDisable::StaticClass()->GetDefaultObject(),
-                1.0f,
-                context
-            );
-            ownerASC->CancelAbilities(&UAbilityBase::CancelOnDisableTags);
+            this->HandleDisablePlayer(ownerASC, context);
         }
     }
     // If is guarding
@@ -72,14 +70,9 @@ void UAbilityGetHit::ActivateAbility(
         staminaSpec = FGameplayEffectSpec((UEffectReduceStamina *)UEffectReduceStamina::StaticClass()->GetDefaultObject(), context);
         staminaSpec.SetSetByCallerMagnitude(Tags::Attribute::stamina, -TriggerEventData->EventMagnitude);
         ownerASC->ApplyGameplayEffectSpecToSelf(staminaSpec);
-        if(ownerASC->GetGameplayAttributeValue(UAttributeStamina::GetStaminaAttribute(), unused) <= 0.0f)
+        if (ownerASC->GetGameplayAttributeValue(UAttributeStamina::GetStaminaAttribute(), unused) <= 0.0f)
         {
-            ownerASC->ApplyGameplayEffectToSelf(
-                (UEffectDisable *)UEffectDisable::StaticClass()->GetDefaultObject(),
-                1.0f,
-                context
-            );
-            ownerASC->CancelAbilities(&UAbilityBase::CancelOnDisableTags);
+            this->HandleDisablePlayer(ownerASC, context);
         }
     }
     // Skisue
@@ -100,4 +93,35 @@ void UAbilityGetHit::OnAvatarSet(const FGameplayAbilityActorInfo *ActorInfo, con
     UAbilityGuard *guard = (UAbilityGuard *)ActorInfo->AbilitySystemComponent.Get()->FindAbilitySpecFromClass(UAbilityGuard::StaticClass())->GetPrimaryInstance();
     this->DeflectHandle = &guard->DeflectHandle;
     this->GuardHandle = &guard->GuardHandle;
+}
+
+void UAbilityGetHit::OnFallDownComplete()
+{
+    this->EndAbility(
+        this->GetCurrentAbilitySpecHandle(),
+        this->GetCurrentActorInfo(),
+        this->GetCurrentActivationInfo(),
+        false,
+        false);
+}
+
+void UAbilityGetHit::HandleDisablePlayer(UAbilitySystemComponent *ownerASC, FGameplayEffectContextHandle &context)
+{
+    ownerASC->ApplyGameplayEffectToSelf(
+        (UEffectDisable *)UEffectDisable::StaticClass()->GetDefaultObject(),
+        1.0f,
+        context);
+    ownerASC->CancelAbilities(&UAbilityBase::CancelOnDisableTags);
+    UAbilityTask_PlayMontageAndWait *animTask1 = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+        this,
+        FName("KnockPlayerDown"),
+        this->FallDownMontage,
+        1.0f,
+        FName(NAME_None),
+        false,
+        1.0f,
+        0.0f,
+        true);
+    animTask1->OnCompleted.Add(this->OnFallDownCompleteDelegate);
+    animTask1->ReadyForActivation();
 }
