@@ -63,7 +63,7 @@ void UAbilityDisableAndRecover::CancelAbility(
     }
     UAbilityTask_PlayMontageAndWait *animTask = UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
         this,
-        FName("KnockPlayerDown"),
+        FName("Recover"),
         this->StandUpMontage,
         1.0f,
         FName(NAME_None),
