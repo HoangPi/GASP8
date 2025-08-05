@@ -22,5 +22,6 @@ EBTNodeResult::Type UBTT_InitPatrol::ExecuteTask(UBehaviorTreeComponent &OwnerCo
     OwnerComp.GetBlackboardComponent()->SetValueAsVector(this->PatrolTo, owner->PatrolLocations[owner->CurrentPatrol]);
     OwnerComp.GetBlackboardComponent()->SetValueAsRotator(this->RotateTo, owner->PatrolRotations[owner->CurrentPatrol]);
     OwnerComp.GetBlackboardComponent()->SetValueAsFloat(this->WaitFor, owner->WaitTimes[owner->CurrentPatrol]);
+    OwnerComp.GetBlackboardComponent()->SetValueAsBool(this->HasVisited, true);
     return EBTNodeResult::Succeeded;
 }

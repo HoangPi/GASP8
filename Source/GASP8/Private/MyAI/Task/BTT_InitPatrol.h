@@ -27,6 +27,8 @@ public:
 	FName RotateTo;
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 	FName WaitFor;
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+	FName HasVisited;
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent &OwnerComp, uint8 *NodeMemory);
 };
