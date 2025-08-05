@@ -11,6 +11,7 @@ UBTT_InitPatrol::UBTT_InitPatrol()
 
 EBTNodeResult::Type UBTT_InitPatrol::ExecuteTask(UBehaviorTreeComponent &OwnerComp, uint8 *NodeMemory)
 {
+    Super::ExecuteTask(OwnerComp, NodeMemory);
     ACharacterPatrolAI *owner = Cast<ACharacterPatrolAI>(OwnerComp.GetAIOwner()->GetPawn());
     if (!owner)
     {
