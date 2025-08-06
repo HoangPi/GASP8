@@ -10,6 +10,10 @@
 #include "Perception/AISenseConfig.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AIPerceptionTypes.h"
+#include "BehaviorTree/BlackboardData.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Character.h"
 
 #include "AIC_PatrolNative.generated.h"
 
@@ -30,8 +34,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BehaviorTree")
 	UBehaviorTree *ChaseTree;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "h")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AIPerception")
 	UAIPerceptionComponent *AIPerception;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BehaviorTree")
+	FName ChaseTargetKey;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BehaviorTree")
+	FName LastLocationKey;
 
 	virtual void OnPossess(APawn *InPawn);
 
