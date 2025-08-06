@@ -31,6 +31,8 @@ public:
 	FName HasVisited;
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 	FName AnimIdle;
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+	FName Finished;
 
 	static UAnimMontage *GenericPatrolAnimation;
 
