@@ -24,6 +24,7 @@ EBTNodeResult::Type UBTT_EndChaseSequence::ExecuteTask(UBehaviorTreeComponent &O
     {
         OwnerComp.GetBlackboardComponent()->SetValueAsBool(this->IsChasing, false);
         OwnerComp.GetBlackboardComponent()->SetValueAsBool(this->IsPatroling, true);
+        OwnerComp.GetBlackboardComponent()->SetValueAsBool(this->FinishedPatrol, false);
         return EBTNodeResult::Succeeded;
     }
     return EBTNodeResult::Failed;

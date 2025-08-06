@@ -28,5 +28,8 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 	FName IsChasing;
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+	FName FinishedPatrol;
+
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent &OwnerComp, uint8 *NodeMemory);
 };
