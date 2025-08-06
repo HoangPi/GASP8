@@ -7,6 +7,7 @@
 
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 #include "BTT_EndChaseSequence.generated.h"
 
@@ -20,6 +21,15 @@ class UBTT_EndChaseSequence : public UBTTaskNode
 
 public:
 	UBTT_EndChaseSequence();
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+	FName IsPatroling;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+	FName IsChasing;
+
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+	FName FinishedPatrol;
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent &OwnerComp, uint8 *NodeMemory);
 };

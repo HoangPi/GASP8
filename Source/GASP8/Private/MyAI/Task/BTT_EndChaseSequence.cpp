@@ -22,7 +22,9 @@ EBTNodeResult::Type UBTT_EndChaseSequence::ExecuteTask(UBehaviorTreeComponent &O
     }
     if(AAIC_PatrolNative *controller = Cast<AAIC_PatrolNative>(OwnerComp.GetAIOwner()))
     {
-        controller->RunBehaviorTree(controller->PatrolTree);
+        OwnerComp.GetBlackboardComponent()->SetValueAsBool(this->IsChasing, false);
+        OwnerComp.GetBlackboardComponent()->SetValueAsBool(this->IsPatroling, true);
+        OwnerComp.GetBlackboardComponent()->SetValueAsBool(this->FinishedPatrol, false);
         return EBTNodeResult::Succeeded;
     }
     return EBTNodeResult::Failed;

@@ -34,6 +34,8 @@ EBTNodeResult::Type UUBTT_FindNextPatrol::ExecuteTask(UBehaviorTreeComponent &Ow
         else
         {
             OwnerComp.GetBlackboardComponent()->SetValueAsBool(this->Finished, true);
+            OwnerComp.GetBlackboardComponent()->SetValueAsBool(this->IsPatroling, false);
+            OwnerComp.StopTree(EBTStopMode::Type::Safe);
             return EBTNodeResult::Succeeded;
         }
     }
