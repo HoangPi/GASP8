@@ -40,5 +40,9 @@ EBTNodeResult::Type UUBTT_FindNextPatrol::ExecuteTask(UBehaviorTreeComponent &Ow
     OwnerComp.GetBlackboardComponent()->SetValueAsVector(this->PatrolTo, owner->PatrolLocations[owner->CurrentPatrol]);
     OwnerComp.GetBlackboardComponent()->SetValueAsRotator(this->RotateTo, owner->PatrolRotations[owner->CurrentPatrol]);
     OwnerComp.GetBlackboardComponent()->SetValueAsFloat(this->WaitFor, owner->WaitTimes[owner->CurrentPatrol]);
+    if(owner->PatrolAnimations.Num() > 0 && owner->CurrentPatrol < owner->PatrolAnimations.Num())
+    {
+        OwnerComp.GetBlackboardComponent()->SetValueAsObject(this->AnimIdle, owner->PatrolAnimations[owner->CurrentPatrol]);
+    }
     return EBTNodeResult::Succeeded;
 }
