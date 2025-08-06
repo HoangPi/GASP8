@@ -31,6 +31,8 @@ public:
 	FName Finished;
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 	FName AnimIdle;
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+	FName IsPatroling;
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent &OwnerComp, uint8 *NodeMemory);
 };
