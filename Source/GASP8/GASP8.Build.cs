@@ -16,7 +16,9 @@ public class GASP8 : ModuleRules
 			"EnhancedInput",
 			"GameplayAbilities",
 			"GameplayTags",
-			"GameplayTasks"
+			"GameplayTasks",
+			"AIModule",
+			"AIGraph"
 			 });
 	}
 }
