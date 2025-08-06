@@ -44,6 +44,7 @@ void AAIC_PatrolNative::OnTargetUpdated(AActor *Actor, FAIStimulus Stimulus)
         this->Blackboard.Get()->SetValueAsObject(this->ChaseTargetKey, Actor);
         this->Blackboard.Get()->SetValueAsBool(this->IsPatrolingKey, false);
         this->Blackboard.Get()->SetValueAsBool(this->IsChasingKey, true);
+        this->RunBehaviorTree(this->EnemyTree);
     }
     else
     {
