@@ -29,10 +29,7 @@ public:
 	AAIC_PatrolNative();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BehaviorTree")
-	UBehaviorTree *PatrolTree;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BehaviorTree")
-	UBehaviorTree *ChaseTree;
+	UBehaviorTree *EnemyTree;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AIPerception")
 	UAIPerceptionComponent *AIPerception;
@@ -42,6 +39,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BehaviorTree")
 	FName LastLocationKey;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BehaviorTree")
+	FName IsPatrolingKey;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BehaviorTree")
+	FName IsChasingKey;
 
 	virtual void OnPossess(APawn *InPawn);
 
