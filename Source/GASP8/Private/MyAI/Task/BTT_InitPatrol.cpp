@@ -5,6 +5,8 @@
 #include "LogicalAssets/Character/CharacterPatrolAI.h"
 #include "Ultilities/Macro.h"
 
+UAnimMontage *UBTT_InitPatrol::GenericPatrolAnimation;
+
 UBTT_InitPatrol::UBTT_InitPatrol()
 {
 }
@@ -23,5 +25,13 @@ EBTNodeResult::Type UBTT_InitPatrol::ExecuteTask(UBehaviorTreeComponent &OwnerCo
     OwnerComp.GetBlackboardComponent()->SetValueAsRotator(this->RotateTo, owner->PatrolRotations[owner->CurrentPatrol]);
     OwnerComp.GetBlackboardComponent()->SetValueAsFloat(this->WaitFor, owner->WaitTimes[owner->CurrentPatrol]);
     OwnerComp.GetBlackboardComponent()->SetValueAsBool(this->HasVisited, true);
+    if(owner->PatrolAnimations.Num() > 0 && owner->CurrentPatrol < owner->PatrolAnimations.Num())
+    {
+        OwnerComp.GetBlackboardComponent()->SetValueAsObject(this->AnimIdle, owner->PatrolAnimations[owner->CurrentPatrol]);
+    }
+    else
+    {
+
+    }
     return EBTNodeResult::Succeeded;
 }

@@ -29,6 +29,10 @@ public:
 	FName WaitFor;
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 	FName HasVisited;
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
+	FName AnimIdle;
+
+	static UAnimMontage *GenericPatrolAnimation;
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent &OwnerComp, uint8 *NodeMemory);
 };
