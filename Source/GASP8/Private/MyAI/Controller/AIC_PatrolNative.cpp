@@ -38,7 +38,7 @@ void AAIC_PatrolNative::OnTargetUpdated(AActor *Actor, FAIStimulus Stimulus)
     {
         if (ACharacter *owner = Cast<ACharacter>(this->GetPawn()))
         {
-            owner->GetCharacterMovement()->MaxWalkSpeed = 200.0f;
+            owner->GetCharacterMovement()->MaxWalkSpeed = 400.0f;
         }
         this->Blackboard.Get()->SetValueAsObject(this->ChaseTargetKey, Actor);
         this->Blackboard.Get()->SetValueAsBool(this->IsPatrolingKey, false);
