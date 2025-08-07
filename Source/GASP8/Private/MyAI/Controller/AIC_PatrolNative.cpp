@@ -9,6 +9,7 @@ AAIC_PatrolNative::AAIC_PatrolNative()
 
     UAISenseConfig_Sight *sightConfig = this->CreateDefaultSubobject<UAISenseConfig_Sight>(FName("SightConfig"));
     sightConfig->DetectionByAffiliation = FAISenseAffiliationFilter(true, false, false);
+    sightConfig->SetMaxAge(2);
     this->AIPerception->ConfigureSense(*sightConfig);
 
     this->Team = ETeamEnum::Enemy;
@@ -33,6 +34,7 @@ void AAIC_PatrolNative::OnPossess(APawn *InPawn)
 
 void AAIC_PatrolNative::OnTargetUpdated(AActor *Actor, FAIStimulus Stimulus)
 {
+    // GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, Actor->GetName());
     if (Stimulus.WasSuccessfullySensed())
     {
         if (ACharacter *owner = Cast<ACharacter>(this->GetPawn()))
