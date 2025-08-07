@@ -33,11 +33,6 @@ void AAIC_PatrolNative::OnPossess(APawn *InPawn)
 
 void AAIC_PatrolNative::OnTargetUpdated(AActor *Actor, FAIStimulus Stimulus)
 {
-    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, Actor->GetName());
-    if (!Actor->ActorHasTag(FName("Player")))
-    {
-        return;
-    }
     if (Stimulus.WasSuccessfullySensed())
     {
         if (ACharacter *owner = Cast<ACharacter>(this->GetPawn()))
