@@ -31,5 +31,8 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 	FName FinishedPatrol;
 
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+	float PatrolSpeed;
+
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent &OwnerComp, uint8 *NodeMemory);
 };

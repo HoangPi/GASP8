@@ -7,6 +7,7 @@
 
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 #include "BTT_InitPatrol.generated.h"
 
@@ -33,6 +34,8 @@ public:
 	FName AnimIdle;
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly)
 	FName Finished;
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
+	float PatrolSpeed;
 
 	static UAnimMontage *GenericPatrolAnimation;
 

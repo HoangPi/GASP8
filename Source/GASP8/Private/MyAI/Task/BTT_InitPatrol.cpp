@@ -9,6 +9,7 @@ UAnimMontage *UBTT_InitPatrol::GenericPatrolAnimation;
 
 UBTT_InitPatrol::UBTT_InitPatrol()
 {
+	this->PatrolSpeed = 200.0f;
 }
 
 EBTNodeResult::Type UBTT_InitPatrol::ExecuteTask(UBehaviorTreeComponent &OwnerComp, uint8 *NodeMemory)
@@ -21,6 +22,7 @@ EBTNodeResult::Type UBTT_InitPatrol::ExecuteTask(UBehaviorTreeComponent &OwnerCo
     }
     int max = owner->PatrolLocations.Num();
     owner->CurrentPatrol = CLAMP(owner->CurrentPatrol, 0, max);
+    owner->GetCharacterMovement()->MaxWalkSpeed = this->PatrolSpeed;
     OwnerComp.GetBlackboardComponent()->SetValueAsVector(this->PatrolTo, owner->PatrolLocations[owner->CurrentPatrol]);
     OwnerComp.GetBlackboardComponent()->SetValueAsRotator(this->RotateTo, owner->PatrolRotations[owner->CurrentPatrol]);
     OwnerComp.GetBlackboardComponent()->SetValueAsFloat(this->WaitFor, owner->WaitTimes[owner->CurrentPatrol]);

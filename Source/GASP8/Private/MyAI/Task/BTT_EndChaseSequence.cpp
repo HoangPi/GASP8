@@ -7,6 +7,7 @@
 
 UBTT_EndChaseSequence::UBTT_EndChaseSequence()
 {
+	this->PatrolSpeed = 200.0f;
 }
 
 EBTNodeResult::Type UBTT_EndChaseSequence::ExecuteTask(UBehaviorTreeComponent &OwnerComp, uint8 *NodeMemory)
@@ -18,7 +19,7 @@ EBTNodeResult::Type UBTT_EndChaseSequence::ExecuteTask(UBehaviorTreeComponent &O
     }
     if(ACharacter *owner = Cast<ACharacter>(OwnerComp.GetAIOwner()->GetPawn()))
     {
-        owner->GetCharacterMovement()->MaxWalkSpeed = 120.0f;
+        owner->GetCharacterMovement()->MaxWalkSpeed = this->PatrolSpeed;
     }
     if(AAIC_PatrolNative *controller = Cast<AAIC_PatrolNative>(OwnerComp.GetAIOwner()))
     {
