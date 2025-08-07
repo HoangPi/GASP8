@@ -17,6 +17,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "MyTags/MyTags.h"
 #include "MyAttributes/Health/AttributeHealth.h"
+#include "Ultilities/TeamEnum.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -61,6 +62,7 @@ AGASP8Character::AGASP8Character()
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 	this->AbilitySystemComponent = this->CreateDefaultSubobject<UAbilitySystemComponent>(FName("MCAbilitySystemComponent"));
 	this->SetupMyComponents();
+	this->SetGenericTeamId((uint8)ETeamEnum::Player);
 }
 
 //////////////////////////////////////////////////////////////////////////

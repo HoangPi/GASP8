@@ -8,6 +8,7 @@
 
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
+#include "GenericTeamAgentInterface.h"
 
 #include "GASP8Character.generated.h"
 
@@ -20,7 +21,7 @@ struct FInputActionValue;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config = Game)
-class AGASP8Character : public ACharacter, public IAbilitySystemInterface
+class AGASP8Character : public ACharacter, public IAbilitySystemInterface, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -53,6 +54,7 @@ public:
 
 	UAbilitySystemComponent *AbilitySystemComponent;
 	class UComponentLockon *MyLockonComponent;
+	FGenericTeamId PlayerTeam;
 
 	inline void SetupMyComponents();
 
@@ -86,4 +88,9 @@ public:
 	FORCEINLINE class UCameraComponent *GetFollowCamera() const { return FollowCamera; }
 	UFUNCTION(BlueprintCallable)
 	virtual UAbilitySystemComponent *GetAbilitySystemComponent() const override { return this->AbilitySystemComponent; }
+
+	UFUNCTION(BlueprintCallable)
+	virtual inline void SetGenericTeamId(const FGenericTeamId& TeamID) override { this->PlayerTeam = TeamID; };
+	UFUNCTION(BlueprintCallable)
+	virtual inline FGenericTeamId GetGenericTeamId() const override { return this->PlayerTeam; };
 };

@@ -14,6 +14,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
+#include "Ultilities/TeamEnum.h"
 
 #include "AIC_PatrolNative.generated.h"
 
@@ -45,6 +46,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BehaviorTree")
 	FName IsChasingKey;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AIPerception")
+	ETeamEnum Team;
 
 	virtual void OnPossess(APawn *InPawn);
 
