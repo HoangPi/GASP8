@@ -8,8 +8,10 @@ AAIC_PatrolNative::AAIC_PatrolNative()
     this->AIPerception = this->CreateDefaultSubobject<UAIPerceptionComponent>(FName("EnemyPerception"));
 
     UAISenseConfig_Sight *sightConfig = this->CreateDefaultSubobject<UAISenseConfig_Sight>(FName("SightConfig"));
-    sightConfig->DetectionByAffiliation = FAISenseAffiliationFilter(true, true, false);
+    sightConfig->DetectionByAffiliation = FAISenseAffiliationFilter(true, false, false);
     this->AIPerception->ConfigureSense(*sightConfig);
+
+    this->Team = ETeamEnum::Enemy;
 
     FScriptDelegate onTargetUpdatedDelegate;
     onTargetUpdatedDelegate.BindUFunction(this, FName("OnTargetUpdated"));
@@ -24,12 +26,14 @@ AAIC_PatrolNative::AAIC_PatrolNative()
 void AAIC_PatrolNative::OnPossess(APawn *InPawn)
 {
     Super::OnPossess(InPawn);
+    this->SetGenericTeamId(FGenericTeamId((uint8)this->Team));
     this->RunBehaviorTree(this->EnemyTree);
     this->Blackboard.Get()->SetValueAsBool(this->IsPatrolingKey, true);
 }
 
 void AAIC_PatrolNative::OnTargetUpdated(AActor *Actor, FAIStimulus Stimulus)
 {
+    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, Actor->GetName());
     if (!Actor->ActorHasTag(FName("Player")))
     {
         return;
