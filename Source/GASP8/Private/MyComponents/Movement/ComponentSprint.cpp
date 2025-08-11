@@ -8,6 +8,7 @@
 #include "MyAttributes/Stamina/AttributeStamina.h"
 #include "MyAbilities/Combat/DisableAndRecover/AbilityDisableAndRecover.h"
 #include "MyTags/MyTags.h"
+#include "Ultilities/GobalVars.h"
 
 // Sets default values for this component's properties
 UComponentSprint::UComponentSprint()
@@ -24,7 +25,7 @@ UComponentSprint::UComponentSprint()
 		this->SprintHandle = this->OwnerASC->K2_GiveAbility(UAbilitySprint::StaticClass());
 		this->RecoverHandle = this->OwnerASC->K2_GiveAbility(UAbilityDisableAndRecover::StaticClass());
 	}
-	this->SprintAction = LoadObject<UInputAction>(nullptr, TEXT("/Game/ThirdPerson/Input/Actions/IA_Sprint.IA_Sprint"));
+	this->SprintAction = LoadObject<UInputAction>(nullptr, AssetPath::InputAction::SprintAction);
 }
 
 

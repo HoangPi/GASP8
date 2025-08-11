@@ -4,10 +4,11 @@
 #include "MyAttributes/Health/AttributeHealth.h"
 
 #include "Ultilities/Macro.h"
+#include "Ultilities/GobalVars.h"
 
 UAttributeHealth::UAttributeHealth()
 {
-    UDataTable *table = LoadObject<UDataTable>(nullptr, TEXT("/Game/ThirdPerson/DataTable/DT_Health.DT_Health"));
+    UDataTable *table = LoadObject<UDataTable>(nullptr, AssetPath::DataTable::Health);
     FAttributeMetaData *data = table->FindRow<FAttributeMetaData>(FName("3"), FString("NoThanks"));
     this->Health = data->BaseValue;
     this->MaxHealth = data->BaseValue;

@@ -6,6 +6,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Ultilities/MyConst.h"
+#include "Ultilities/GobalVars.h"
 #include "MyEffects/Cooldown/EffectGenericCooldown.h"
 #include "MyTags/MyTags.h"
 
@@ -17,8 +18,8 @@ UComponentLockon::UComponentLockon()
 	PrimaryComponentTick.bCanEverTick = true;
 	this->SetComponentTickEnabled(false);
 	this->LockonTarget = nullptr;
-	this->LockonAction = LoadObject<UInputAction>(nullptr, TEXT("/Game/ThirdPerson/Input/Actions/IA_Lockon.IA_Lockon"));
-	this->LookAction = LoadObject<UInputAction>(nullptr, TEXT("/Game/ThirdPerson/Input/Actions/IA_Look.IA_Look"));
+	this->LockonAction = LoadObject<UInputAction>(nullptr, AssetPath::InputAction::LockonAction);
+	this->LookAction = LoadObject<UInputAction>(nullptr, AssetPath::InputAction::LookAction);
 	if (IAbilitySystemInterface *owner = this->GetOwner<IAbilitySystemInterface>())
 	{
 		this->OwnerASC = owner->GetAbilitySystemComponent();

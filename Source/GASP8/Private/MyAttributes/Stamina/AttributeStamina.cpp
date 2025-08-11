@@ -6,12 +6,13 @@
 #include "Ultilities/Macro.h"
 #include "MyEffects/Attribute/Stamina/EffectRestoreStamina.h"
 #include "MyTags/MyTags.h"
+#include "Ultilities/GobalVars.h"
 
 FGameplayTagContainer UAttributeStamina::AbilityTagToCancel;
 
 UAttributeStamina::UAttributeStamina()
 {
-    UDataTable *table = LoadObject<UDataTable>(nullptr, TEXT("/Game/ThirdPerson/DataTable/DT_Stamina.DT_Stamina"));
+    UDataTable *table = LoadObject<UDataTable>(nullptr, AssetPath::DataTable::Stamina);
     FAttributeMetaData *data = table->FindRow<FAttributeMetaData>(FName("2"), FString("Why"));
     this->MaxStamina = data->BaseValue;
     this->Stamina = data->BaseValue;
