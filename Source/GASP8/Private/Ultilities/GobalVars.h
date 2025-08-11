@@ -34,4 +34,9 @@ namespace AssetPath
         const auto Health = TEXT("/Game/ThirdPerson/DataTable/DT_Health.DT_Health");
         const auto Stamina = TEXT("/Game/ThirdPerson/DataTable/DT_Stamina.DT_Stamina");
     }
+    namespace AnimMontage
+    {
+        const auto FallDownAndRecover = TEXT("/Game/ThirdPerson/Anim/FallDown_Montage.FallDown_Montage");
+        const auto StandUp = TEXT("/Game/ThirdPerson/Anim/StandingUp_Montage.StandingUp_Montage");
+    }
 };

@@ -5,14 +5,15 @@
 #include "MyTags/MyTags.h"
 #include "LogicalAssets/Abilities/AbilityBase.h"
 #include "MyEffects/PlayerState/EffectDisable.h"
+#include "Ultilities/GobalVars.h"
 
 UAbilityDisableAndRecover::UAbilityDisableAndRecover()
 {
     this->InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerExecution;
     this->ActivationOwnedTags.AddTag(Tags::PlayerState::disabled);
 
-    this->FallDownAndRecoverMontage = LoadObject<UAnimMontage>(nullptr, TEXT("/Game/ThirdPerson/Anim/FallDown_Montage.FallDown_Montage"));
-    this->StandUpMontage = LoadObject<UAnimMontage>(nullptr, TEXT("/Game/ThirdPerson/Anim/StandingUp_Montage.StandingUp_Montage"));
+    this->FallDownAndRecoverMontage = LoadObject<UAnimMontage>(nullptr, AssetPath::AnimMontage::FallDownAndRecover);
+    this->StandUpMontage = LoadObject<UAnimMontage>(nullptr, AssetPath::AnimMontage::StandUp);
 
     this->OnMontageCompletedDelegate.BindUFunction(this, FName("NotifyMontageCompleted"));
     this->OnDisableEnd.BindUFunction(this, FName("NotifyDisableEffectEnded"));
