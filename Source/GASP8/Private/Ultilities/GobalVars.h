@@ -29,4 +29,9 @@ namespace AssetPath
         const auto LookAction = TEXT("/Game/ThirdPerson/Input/Actions/IA_Look.IA_Look");
         const auto SprintAction = TEXT("/Game/ThirdPerson/Input/Actions/IA_Sprint.IA_Sprint");
     }
+    namespace DataTable
+    {
+        const auto Health = TEXT("/Game/ThirdPerson/DataTable/DT_Health.DT_Health");
+        const auto Stamina = TEXT("/Game/ThirdPerson/DataTable/DT_Stamina.DT_Stamina");
+    }
 };
