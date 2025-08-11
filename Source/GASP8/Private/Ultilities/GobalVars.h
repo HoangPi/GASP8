@@ -19,3 +19,14 @@ namespace AI
         const FName IsChasing = "IsChasing";
     }
 };
+
+namespace AssetPath
+{
+    namespace InputAction
+    {
+        const auto GuardAction = TEXT("/Game/ThirdPerson/Input/Actions/IA_Guard.IA_Guard");
+        const auto LockonAction = TEXT("/Game/ThirdPerson/Input/Actions/IA_Lockon.IA_Lockon");
+        const auto LookAction = TEXT("/Game/ThirdPerson/Input/Actions/IA_Look.IA_Look");
+        const auto SprintAction = TEXT("/Game/ThirdPerson/Input/Actions/IA_Sprint.IA_Sprint");
+    }
+};
