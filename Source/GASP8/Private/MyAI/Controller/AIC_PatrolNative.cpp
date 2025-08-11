@@ -2,6 +2,8 @@
 
 #include "MyAI/Controller/AIC_PatrolNative.h"
 
+#include "Ultilities/GobalVars.h"
+
 AAIC_PatrolNative::AAIC_PatrolNative()
 {
     this->EnemyTree = LoadObject<UBehaviorTree>(nullptr, TEXT("/Game/ThirdPerson/Blueprints/AI/BehaviorTree/BT_Enemy.BT_Enemy"));
@@ -18,10 +20,10 @@ AAIC_PatrolNative::AAIC_PatrolNative()
     onTargetUpdatedDelegate.BindUFunction(this, FName("OnTargetUpdated"));
     this->AIPerception->OnTargetPerceptionUpdated.Add(onTargetUpdatedDelegate);
 
-    this->ChaseTargetKey = FName("ChaseTarget");
-    this->LastLocationKey = FName("LastKnownLocation");
-    this->IsPatrolingKey = FName("IsPatroling");
-    this->IsChasingKey = FName("IsChasing");
+    this->ChaseTargetKey = AI::Keys::ChaseTarget;
+    this->LastLocationKey = AI::Keys::LastKnownLocation;
+    this->IsPatrolingKey = AI::Keys::IsPatrolling;
+    this->IsChasingKey = AI::Keys::IsChasing;
 }
 
 void AAIC_PatrolNative::OnPossess(APawn *InPawn)

@@ -13,6 +13,9 @@ namespace AI
 {
     namespace Keys
     {
-
+        const FName ChaseTarget = "ChaseTarget";
+        const FName LastKnownLocation = "LastKnownLocation";
+        const FName IsPatrolling = "IsPatroling";
+        const FName IsChasing = "IsChasing";
     }
 };
