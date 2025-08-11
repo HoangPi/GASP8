@@ -1,7 +1,7 @@
-// #ifndef THOSE_GLOBAL_VARIABLES
-// #define THOSE_GLOBAL_VARIABLES
+#pragma once
 
-// volatile float DeflectDuration = 2.0f;
-// volatile float GuardDuration = 2.0f;
-
-// #endif
+namespace EffectDuration
+{
+    const float Deflect = 2.0f;
+    const float Guard = 2.0f;
+}
