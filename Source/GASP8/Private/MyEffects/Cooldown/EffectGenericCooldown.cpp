@@ -4,11 +4,12 @@
 #include "MyEffects/Cooldown/EffectGenericCooldown.h"
 
 #include "MyTags/MyTags.h"
+#include "Ultilities/GobalVars.h"
 
 UEffectGenericCooldown::UEffectGenericCooldown()
 {
     this->DurationPolicy = EGameplayEffectDurationType::HasDuration;
-    this->DurationMagnitude = FGameplayEffectModifierMagnitude(5.0f);
+    this->DurationMagnitude = FGameplayEffectModifierMagnitude(EffectDuration::DefaultCooldown);
 }
 
 void UEffectGenericCooldown::SetCooldown(float NewCooldown)
