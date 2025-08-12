@@ -18,6 +18,9 @@ class UInputMappingContext;
 class UInputAction;
 struct FInputActionValue;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnIsFallingUpdated, bool, IsFalling);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnIsShouldMoveUpdated, bool, IsFalling);
+
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config = Game)
@@ -55,6 +58,11 @@ public:
 	UAbilitySystemComponent *AbilitySystemComponent;
 	class UComponentLockon *MyLockonComponent;
 	FGenericTeamId PlayerTeam;
+
+	UPROPERTY(BlueprintAssignable, Category = "AnimState")
+	FOnIsFallingUpdated NotifyIsFallingChange;
+	UPROPERTY(BlueprintAssignable, Category = "AnimState")
+	FOnIsShouldMoveUpdated NotifyShouldMoveChange;
 
 	inline void SetupMyComponents();
 

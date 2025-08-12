@@ -107,7 +107,7 @@ void AGASP8Character::SetupPlayerInputComponent(UInputComponent *PlayerInputComp
 void AGASP8Character::Move(const FInputActionValue &Value)
 {
 	// input is a Vector2D
-	if(this->AbilitySystemComponent->HasMatchingGameplayTag(Tags::PlayerState::disabled))
+	if (this->AbilitySystemComponent->HasMatchingGameplayTag(Tags::PlayerState::disabled))
 	{
 		return;
 	}
@@ -160,12 +160,14 @@ void AGASP8Character::Tick(float DeltaSeconds)
 		if (!this->ShouldMove)
 		{
 			this->ShouldMove = true;
+			this->NotifyShouldMoveChange.Broadcast(true);
 			this->AbilitySystemComponent->AddLooseGameplayTag(Tags::PlayerState::should_move);
 		}
 	}
 	else if (this->ShouldMove)
 	{
 		this->ShouldMove = false;
+		this->NotifyShouldMoveChange.Broadcast(false);
 		this->AbilitySystemComponent->RemoveLooseGameplayTag(Tags::PlayerState::should_move);
 	}
 
@@ -174,12 +176,14 @@ void AGASP8Character::Tick(float DeltaSeconds)
 		if (!this->IsFalling)
 		{
 			this->IsFalling = true;
+			this->NotifyIsFallingChange.Broadcast(true);
 			this->AbilitySystemComponent->AddLooseGameplayTag(Tags::PlayerState::on_air);
 		}
 	}
 	else if (this->IsFalling)
 	{
 		this->IsFalling = false;
+		this->NotifyIsFallingChange.Broadcast(false);
 		this->AbilitySystemComponent->RemoveLooseGameplayTag(Tags::PlayerState::on_air);
 	}
 }
