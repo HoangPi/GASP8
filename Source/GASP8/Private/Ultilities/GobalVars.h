@@ -9,6 +9,11 @@ namespace EffectDuration
     const float DefaultCooldown = 5.0f;
 };
 
+namespace Animation
+{
+    const float GuardBlendSpeed = 10.0f;
+};
+
 namespace AI
 {
     namespace Keys
