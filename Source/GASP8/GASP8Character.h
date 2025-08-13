@@ -20,6 +20,7 @@ struct FInputActionValue;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnIsFallingUpdated, bool, IsFalling);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnIsShouldMoveUpdated, bool, IsFalling);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGuardWeigthUpdated, float, NewWeight);
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -63,6 +64,10 @@ public:
 	FOnIsFallingUpdated NotifyIsFallingChange;
 	UPROPERTY(BlueprintAssignable, Category = "AnimState")
 	FOnIsShouldMoveUpdated NotifyShouldMoveChange;
+	UPROPERTY(BlueprintAssignable, Category = "AnimState")
+	FOnGuardWeigthUpdated NotifyGuardWeigthChange;
+	float GuardWeight;
+	bool IsGuarding;
 
 	inline void SetupMyComponents();
 
@@ -76,6 +81,11 @@ public:
 	FVector Velocity;
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float GroundSpeed;
+
+	UFUNCTION()
+	void HandleGuardEvent(bool IsGuarding);
+
+	virtual void OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode = (uint8)0U) override;
 
 protected:
 	/** Called for movement input */

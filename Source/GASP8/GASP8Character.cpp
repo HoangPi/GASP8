@@ -17,7 +17,9 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "MyTags/MyTags.h"
 #include "MyAttributes/Health/AttributeHealth.h"
+#include "MyAbilities/Combat/Guard/AbilityGuard.h"
 #include "Ultilities/TeamEnum.h"
+#include "Ultilities/GobalVars.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -60,6 +62,10 @@ AGASP8Character::AGASP8Character()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character)
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	this->IsGuarding = false;
+	this->GuardWeight = 0.0f;
+
 	this->AbilitySystemComponent = this->CreateDefaultSubobject<UAbilitySystemComponent>(FName("MCAbilitySystemComponent"));
 	this->SetupMyComponents();
 	this->SetGenericTeamId((uint8)ETeamEnum::Player);
@@ -153,6 +159,8 @@ void AGASP8Character::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	this->Velocity = this->GetCharacterMovement()->Velocity;
 	this->GroundSpeed = FVector(Velocity.X, Velocity.Y, 0).Length();
+
+	// Check if player is "moving"
 	if (
 		this->GroundSpeed > 30 &&
 		UKismetMathLibrary::NotEqual_VectorVector(this->GetCharacterMovement()->GetCurrentAcceleration(), FVector(0), 0))
@@ -171,28 +179,49 @@ void AGASP8Character::Tick(float DeltaSeconds)
 		this->AbilitySystemComponent->RemoveLooseGameplayTag(Tags::PlayerState::should_move);
 	}
 
-	if (this->GetCharacterMovement()->IsFalling())
+	if (this->IsGuarding)
 	{
-		if (!this->IsFalling)
+		if (this->GuardWeight < 1.0f)
 		{
-			this->IsFalling = true;
-			this->NotifyIsFallingChange.Broadcast(true);
-			this->AbilitySystemComponent->AddLooseGameplayTag(Tags::PlayerState::on_air);
+			register float newWeigth = this->GuardWeight + DeltaSeconds * Animation::GuardBlendSpeed;
+			this->GuardWeight = (newWeigth <= 1.0f ? newWeigth : 1.0f);
+			this->NotifyGuardWeigthChange.Broadcast(this->GuardWeight);
 		}
 	}
-	else if (this->IsFalling)
+	else if (this->GuardWeight > 0.0f)
 	{
-		this->IsFalling = false;
-		this->NotifyIsFallingChange.Broadcast(false);
-		this->AbilitySystemComponent->RemoveLooseGameplayTag(Tags::PlayerState::on_air);
+		register float newWeigth = this->GuardWeight - DeltaSeconds * Animation::GuardBlendSpeed;
+		this->GuardWeight = (newWeigth >= 0.0f ? newWeigth : 0.0f);
+		this->NotifyGuardWeigthChange.Broadcast(this->GuardWeight);
 	}
 }
 
 void AGASP8Character::SetupMyComponents()
 {
 	this->CreateDefaultSubobject<UComponentSprint>(FName("MovementComponent"));
-	this->CreateDefaultSubobject<UComponentGuard>(FName("MyGuardComponent"));
+	UComponentGuard *tempGuardComponent = this->CreateDefaultSubobject<UComponentGuard>(FName("MyGuardComponent"));
 	UAttributeHealth *healthAttribute = this->CreateDefaultSubobject<UAttributeHealth>(FName("HealthAttribute"));
 	this->MyLockonComponent = this->CreateDefaultSubobject<UComponentLockon>(FName("LockonComponent"));
 	this->AbilitySystemComponent->AddAttributeSetSubobject(healthAttribute);
+
+	((UAbilityGuard *)this->AbilitySystemComponent->FindAbilitySpecFromClass(UAbilityGuard::StaticClass())->GetPrimaryInstance())->NotifyPlayerGuard.AddDynamic(this, &AGASP8Character::HandleGuardEvent);
+}
+
+void AGASP8Character::HandleGuardEvent(bool newGuard)
+{
+	this->IsGuarding = newGuard;
+}
+
+void AGASP8Character::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode = (uint8)0U)
+{
+	if(PrevMovementMode == EMovementMode::MOVE_Falling)
+	{
+		this->NotifyIsFallingChange.Broadcast(false);
+	}
+	else if(this->GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Falling)
+	{
+		this->NotifyIsFallingChange.Broadcast(true);
+	}
+	// I got paranoid that this might overwrite the previous state
+	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
 }
