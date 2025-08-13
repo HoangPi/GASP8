@@ -223,6 +223,7 @@ void AGASP8Character::OnMovementModeChanged(EMovementMode PrevMovementMode, uint
 	}
 	else if(this->GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Falling)
 	{
+		this->Velocity = this->GetCharacterMovement()->Velocity;
 		this->NotifyIsFallingChange.Broadcast(true);
 		this->AbilitySystemComponent->AddLooseGameplayTag(Tags::PlayerState::on_air);
 	}
