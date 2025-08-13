@@ -22,6 +22,8 @@ void UAbilityGuard::ActivateAbility(
     const FGameplayEventData *TriggerEventData)
 {
     Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+    this->NotifyPlayerGuard.Broadcast(true);
+
     UAbilitySystemComponent *ownerASC = ActorInfo->AbilitySystemComponent.Get();
     ownerASC->RemoveActiveEffectsWithTags(UAbilityBase::IdleTags);
     ownerASC->ApplyGameplayEffectToSelf(
@@ -47,4 +49,15 @@ void UAbilityGuard::ActivateAbility(
         (UEffectGuard *)UEffectGuard::StaticClass()->GetDefaultObject(),
         1.0f,
         effectContext);
+}
+
+void UAbilityGuard::EndAbility(
+    FGameplayAbilitySpecHandle Handle, 
+    const FGameplayAbilityActorInfo *ActorInfo, 
+    FGameplayAbilityActivationInfo ActivationInfo, 
+    bool bReplicateEndAbility, 
+    bool bWasCancelled)
+{
+    this->NotifyPlayerGuard.Broadcast(false);
+    Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
