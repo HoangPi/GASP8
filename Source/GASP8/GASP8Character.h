@@ -76,8 +76,6 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	bool ShouldMove;
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	bool IsFalling;
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	FVector Velocity;
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float GroundSpeed;
