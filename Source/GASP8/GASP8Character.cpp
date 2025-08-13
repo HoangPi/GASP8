@@ -183,14 +183,14 @@ void AGASP8Character::Tick(float DeltaSeconds)
 	{
 		if (this->GuardWeight < 1.0f)
 		{
-			register float newWeigth = this->GuardWeight + DeltaSeconds * Animation::GuardBlendSpeed;
+			float newWeigth = this->GuardWeight + DeltaSeconds * Animation::GuardBlendSpeed;
 			this->GuardWeight = (newWeigth <= 1.0f ? newWeigth : 1.0f);
 			this->NotifyGuardWeigthChange.Broadcast(this->GuardWeight);
 		}
 	}
 	else if (this->GuardWeight > 0.0f)
 	{
-		register float newWeigth = this->GuardWeight - DeltaSeconds * Animation::GuardBlendSpeed;
+		float newWeigth = this->GuardWeight - DeltaSeconds * Animation::GuardBlendSpeed;
 		this->GuardWeight = (newWeigth >= 0.0f ? newWeigth : 0.0f);
 		this->NotifyGuardWeigthChange.Broadcast(this->GuardWeight);
 	}
@@ -212,16 +212,18 @@ void AGASP8Character::HandleGuardEvent(bool newGuard)
 	this->IsGuarding = newGuard;
 }
 
-void AGASP8Character::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode = (uint8)0U)
+void AGASP8Character::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
 {
+	// I got paranoid that this might overwrite the previous state
+	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
 	if(PrevMovementMode == EMovementMode::MOVE_Falling)
 	{
 		this->NotifyIsFallingChange.Broadcast(false);
+		this->AbilitySystemComponent->RemoveLooseGameplayTag(Tags::PlayerState::on_air);
 	}
 	else if(this->GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Falling)
 	{
 		this->NotifyIsFallingChange.Broadcast(true);
+		this->AbilitySystemComponent->AddLooseGameplayTag(Tags::PlayerState::on_air);
 	}
-	// I got paranoid that this might overwrite the previous state
-	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
 }
