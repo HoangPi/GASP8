@@ -100,6 +100,7 @@ void AGASP8Character::SetupPlayerInputComponent(UInputComponent *PlayerInputComp
 
 		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AGASP8Character::Move);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &AGASP8Character::StopMoving);
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AGASP8Character::Look);
@@ -134,6 +135,29 @@ void AGASP8Character::Move(const FInputActionValue &Value)
 		// add movement
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
+
+		// Update movement information
+		this->Velocity = this->GetCharacterMovement()->Velocity;
+		this->GroundSpeed = FVector(Velocity.X, Velocity.Y, 0).Length();
+
+		// Check if player is "moving"
+		if (
+			this->GroundSpeed > 30 &&
+			UKismetMathLibrary::NotEqual_VectorVector(this->GetCharacterMovement()->GetCurrentAcceleration(), FVector(0), 0))
+		{
+			if (!this->ShouldMove)
+			{
+				this->ShouldMove = true;
+				this->NotifyShouldMoveChange.Broadcast(true);
+				this->AbilitySystemComponent->AddLooseGameplayTag(Tags::PlayerState::should_move);
+			}
+		}
+		else if (this->ShouldMove)
+		{
+			this->ShouldMove = false;
+			this->NotifyShouldMoveChange.Broadcast(false);
+			this->AbilitySystemComponent->RemoveLooseGameplayTag(Tags::PlayerState::should_move);
+		}
 	}
 }
 
@@ -157,27 +181,6 @@ void AGASP8Character::Look(const FInputActionValue &Value)
 void AGASP8Character::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	this->Velocity = this->GetCharacterMovement()->Velocity;
-	this->GroundSpeed = FVector(Velocity.X, Velocity.Y, 0).Length();
-
-	// Check if player is "moving"
-	if (
-		this->GroundSpeed > 30 &&
-		UKismetMathLibrary::NotEqual_VectorVector(this->GetCharacterMovement()->GetCurrentAcceleration(), FVector(0), 0))
-	{
-		if (!this->ShouldMove)
-		{
-			this->ShouldMove = true;
-			this->NotifyShouldMoveChange.Broadcast(true);
-			this->AbilitySystemComponent->AddLooseGameplayTag(Tags::PlayerState::should_move);
-		}
-	}
-	else if (this->ShouldMove)
-	{
-		this->ShouldMove = false;
-		this->NotifyShouldMoveChange.Broadcast(false);
-		this->AbilitySystemComponent->RemoveLooseGameplayTag(Tags::PlayerState::should_move);
-	}
 
 	if (this->IsGuarding)
 	{
@@ -216,15 +219,22 @@ void AGASP8Character::OnMovementModeChanged(EMovementMode PrevMovementMode, uint
 {
 	// I got paranoid that this might overwrite the previous state
 	Super::OnMovementModeChanged(PrevMovementMode, PreviousCustomMode);
-	if(PrevMovementMode == EMovementMode::MOVE_Falling)
+	if (PrevMovementMode == EMovementMode::MOVE_Falling)
 	{
 		this->NotifyIsFallingChange.Broadcast(false);
 		this->AbilitySystemComponent->RemoveLooseGameplayTag(Tags::PlayerState::on_air);
 	}
-	else if(this->GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Falling)
+	else if (this->GetCharacterMovement()->MovementMode == EMovementMode::MOVE_Falling)
 	{
 		this->Velocity = this->GetCharacterMovement()->Velocity;
 		this->NotifyIsFallingChange.Broadcast(true);
 		this->AbilitySystemComponent->AddLooseGameplayTag(Tags::PlayerState::on_air);
 	}
+}
+
+void AGASP8Character::StopMoving()
+{
+	this->ShouldMove = false;
+	this->NotifyShouldMoveChange.Broadcast(false);
+	this->AbilitySystemComponent->RemoveLooseGameplayTag(Tags::PlayerState::should_move);
 }
