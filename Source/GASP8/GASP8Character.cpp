@@ -190,12 +190,20 @@ void AGASP8Character::Tick(float DeltaSeconds)
 			this->GuardWeight = (newWeigth <= 1.0f ? newWeigth : 1.0f);
 			this->NotifyGuardWeigthChange.Broadcast(this->GuardWeight);
 		}
+		else
+		{
+			this->SetActorTickEnabled(false);
+		}
 	}
 	else if (this->GuardWeight > 0.0f)
 	{
 		float newWeigth = this->GuardWeight - DeltaSeconds * Animation::GuardBlendSpeed;
 		this->GuardWeight = (newWeigth >= 0.0f ? newWeigth : 0.0f);
 		this->NotifyGuardWeigthChange.Broadcast(this->GuardWeight);
+	}
+	else
+	{
+		this->SetActorTickEnabled(false);
 	}
 }
 
@@ -213,6 +221,7 @@ void AGASP8Character::SetupMyComponents()
 void AGASP8Character::HandleGuardEvent(bool newGuard)
 {
 	this->IsGuarding = newGuard;
+	this->SetActorTickEnabled(true);
 }
 
 void AGASP8Character::OnMovementModeChanged(EMovementMode PrevMovementMode, uint8 PreviousCustomMode)
