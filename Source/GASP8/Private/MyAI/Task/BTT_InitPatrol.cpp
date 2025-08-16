@@ -4,12 +4,21 @@
 
 #include "LogicalAssets/Character/CharacterPatrolAI.h"
 #include "Ultilities/Macro.h"
+#include "Ultilities/GobalVars.h"
 
 UAnimMontage *UBTT_InitPatrol::GenericPatrolAnimation;
 
 UBTT_InitPatrol::UBTT_InitPatrol()
 {
+    this->PatrolTo = AI::Keys::PatrolTo;
+    this->RotateTo = AI::Keys::RotateTo;
+    this->WaitFor = AI::Keys::WaitFor;
+    this->HasVisited = AI::Keys::HasVisited;
+    this->AnimIdle = AI::Keys::AnimIdle;
+    this->Finished = AI::Keys::Finished;
+    // TODO: Promote this to global var
 	this->PatrolSpeed = 200.0f;
+    UBTT_InitPatrol::GenericPatrolAnimation = LoadObject<UAnimMontage>(nullptr, AssetPath::AnimMontage::DefaultPatrolAnim);
 }
 
 EBTNodeResult::Type UBTT_InitPatrol::ExecuteTask(UBehaviorTreeComponent &OwnerComp, uint8 *NodeMemory)
@@ -34,7 +43,7 @@ EBTNodeResult::Type UBTT_InitPatrol::ExecuteTask(UBehaviorTreeComponent &OwnerCo
     }
     else
     {
-
+        OwnerComp.GetBlackboardComponent()->SetValueAsObject(this->AnimIdle, UBTT_InitPatrol::GenericPatrolAnimation);
     }
     return EBTNodeResult::Succeeded;
 }

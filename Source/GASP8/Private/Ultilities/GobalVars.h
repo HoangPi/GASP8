@@ -16,12 +16,20 @@ namespace Animation
 
 namespace AI
 {
+    // TODO: Maybe move the keys to sub namespace
     namespace Keys
     {
         const FName ChaseTarget = "ChaseTarget";
         const FName LastKnownLocation = "LastKnownLocation";
         const FName IsPatrolling = "IsPatroling";
         const FName IsChasing = "IsChasing";
+        const FName HasInit = "HasInit";
+        const FName PatrolTo = "PatrolTo";
+        const FName RotateTo = "RotateTo";
+        const FName WaitFor = "WaitTime";
+        const FName HasVisited = "HasInit";
+        const FName AnimIdle = "IdleAnimation";
+        const FName Finished = "Finished";
     }
 };
 
@@ -43,5 +51,6 @@ namespace AssetPath
     {
         const auto FallDownAndRecover = TEXT("/Game/ThirdPerson/Anim/FallDown_Montage.FallDown_Montage");
         const auto StandUp = TEXT("/Game/ThirdPerson/Anim/StandingUp_Montage.StandingUp_Montage");
+        const auto DefaultPatrolAnim = TEXT("/Game/ThirdPerson/Anim/StandingUp_Montage.StandingUp_Montage");
     }
 };
