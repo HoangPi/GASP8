@@ -20,10 +20,10 @@ class UBTDecorator_NativeBlackBoard : public UBTDecorator_Blackboard
 public:
 	UBTDecorator_NativeBlackBoard();
 
-	inline void SetNotifyObserver(TEnumAsByte<EBTBlackboardRestart::Type> observer);
-	inline void SetBlackboardKey(FBlackboardKeySelector BlackboardKey);
+	void SetNotifyObserver(TEnumAsByte<EBTBlackboardRestart::Type> observer);
+	void SetBlackboardKey(FBlackboardKeySelector BlackboardKey);
 
 	// Set operation can either be Basic, Arithmetic or Text
 	// Choose the enum from EBasicKeyOperation, EArithmeticKeyOperation, ETextKeyOperation
-	inline void SetOperationType(uint8 operation);
+	void SetOperationType(uint8 operation);
 };
