@@ -24,9 +24,9 @@ namespace AI
         const FName IsPatrolling = "IsPatroling";
         const FName IsChasing = "IsChasing";
         const FName HasInit = "HasInit";
-        const FName PatrolTo = "PatrolTo";
+        const FName PatrolTo = "PatrolRotateTo";
         const FName RotateTo = "RotateTo";
-        const FName WaitFor = "WaitTime";
+        const FName WaitFor = "WaitTIme";
         const FName HasVisited = "HasInit";
         const FName AnimIdle = "IdleAnimation";
         const FName Finished = "Finished";
