@@ -3,10 +3,12 @@
 #include "MyAI/Controller/AIC_PatrolNative.h"
 
 #include "Ultilities/GobalVars.h"
+#include "MyAI/BehaviorTree/BT_Enemy.h"
 
 AAIC_PatrolNative::AAIC_PatrolNative()
 {
-    this->EnemyTree = LoadObject<UBehaviorTree>(nullptr, TEXT("/Game/ThirdPerson/Blueprints/AI/BehaviorTree/BT_Enemy.BT_Enemy"));
+    // this->EnemyTree = LoadObject<UBehaviorTree>(nullptr, TEXT("/Game/ThirdPerson/Blueprints/AI/BehaviorTree/BT_Enemy.BT_Enemy"));
+    this->EnemyTree = this->CreateDefaultSubobject<UBT_Enemy>(FName("PatrolTree"));
     this->AIPerception = this->CreateDefaultSubobject<UAIPerceptionComponent>(FName("EnemyPerception"));
 
     UAISenseConfig_Sight *sightConfig = this->CreateDefaultSubobject<UAISenseConfig_Sight>(FName("SightConfig"));
@@ -37,20 +39,20 @@ void AAIC_PatrolNative::OnPossess(APawn *InPawn)
 void AAIC_PatrolNative::OnTargetUpdated(AActor *Actor, FAIStimulus Stimulus)
 {
     // GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, Actor->GetName());
-    if (Stimulus.WasSuccessfullySensed())
-    {
-        if (ACharacter *owner = Cast<ACharacter>(this->GetPawn()))
-        {
-            owner->GetCharacterMovement()->MaxWalkSpeed = 400.0f;
-        }
-        this->Blackboard.Get()->SetValueAsObject(this->ChaseTargetKey, Actor);
-        this->Blackboard.Get()->SetValueAsBool(this->IsPatrolingKey, false);
-        this->Blackboard.Get()->SetValueAsBool(this->IsChasingKey, true);
-        this->RunBehaviorTree(this->EnemyTree);
-    }
-    else
-    {
-        this->Blackboard.Get()->SetValueAsVector(this->LastLocationKey, Actor->GetActorLocation());
-        this->Blackboard.Get()->SetValueAsObject(this->ChaseTargetKey, nullptr);
-    }
+    // if (Stimulus.WasSuccessfullySensed())
+    // {
+    //     if (ACharacter *owner = Cast<ACharacter>(this->GetPawn()))
+    //     {
+    //         owner->GetCharacterMovement()->MaxWalkSpeed = 400.0f;
+    //     }
+    //     this->Blackboard.Get()->SetValueAsObject(this->ChaseTargetKey, Actor);
+    //     this->Blackboard.Get()->SetValueAsBool(this->IsPatrolingKey, false);
+    //     this->Blackboard.Get()->SetValueAsBool(this->IsChasingKey, true);
+    //     this->RunBehaviorTree(this->EnemyTree);
+    // }
+    // else
+    // {
+    //     this->Blackboard.Get()->SetValueAsVector(this->LastLocationKey, Actor->GetActorLocation());
+    //     this->Blackboard.Get()->SetValueAsObject(this->ChaseTargetKey, nullptr);
+    // }
 }

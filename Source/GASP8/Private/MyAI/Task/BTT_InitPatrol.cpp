@@ -37,6 +37,7 @@ EBTNodeResult::Type UBTT_InitPatrol::ExecuteTask(UBehaviorTreeComponent &OwnerCo
     OwnerComp.GetBlackboardComponent()->SetValueAsFloat(this->WaitFor, owner->WaitTimes[owner->CurrentPatrol]);
     OwnerComp.GetBlackboardComponent()->SetValueAsBool(this->HasVisited, true);
     OwnerComp.GetBlackboardComponent()->SetValueAsBool(this->Finished, false);
+    // OwnerComp.GetBlackboardComponent()->SetValueAsBool(this->Finished, false);
     if(owner->PatrolAnimations.Num() > 0 && owner->CurrentPatrol < owner->PatrolAnimations.Num())
     {
         OwnerComp.GetBlackboardComponent()->SetValueAsObject(this->AnimIdle, owner->PatrolAnimations[owner->CurrentPatrol]);
