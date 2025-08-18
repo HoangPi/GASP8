@@ -126,6 +126,7 @@ void AGASP8Character::Move(const FInputActionValue &Value)
 	if(this->AbilitySystemComponent->HasMatchingGameplayTag(Tags::PlayerState::on_air))
 	{
 		AddMovementInput(this->GetActorRotation().Vector(), 1);
+		return;
 	}
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
