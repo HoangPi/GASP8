@@ -103,10 +103,25 @@ void UComponentLockon::Lockon()
 			this->CollisionShape,
 			this->ActorsToIgnore))
 	{
+		AController *controller = this->MyOwner->GetController();
+		if (!controller->LineOfSightTo(result.GetActor(), this->MyOwner->GetFollowCamera()->GetComponentLocation()))
+		{
+			this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, controller]()
+																	{ this->AdjustCamera(controller); });
+		}
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, result.GetActor()->GetName());
 		this->LockonTarget = result.GetActor();
 		this->SetComponentTickEnabled(true);
 		this->CooldownHandle = this->OwnerASC->ApplyGameplayEffectSpecToSelf(this->CooldownSpec);
+	}
+	else
+	{
+		AController *controller = this->MyOwner->GetController();
+		if (!controller->LineOfSightTo(result.GetActor(), this->MyOwner->GetFollowCamera()->GetComponentLocation()))
+		{
+			this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, controller]()
+																	{ this->AdjustCamera(controller); });
+		}
 	}
 }
 
@@ -183,4 +198,25 @@ void UComponentLockon::Switch(const FInputActionValue &Value)
 			false,
 			FLinearColor::Blue);
 	}
+}
+
+void UComponentLockon::AdjustCamera(AController *controller, float counter)
+{
+	FRotator target = this->MyOwner->GetActorRotation();
+	target.Pitch = controller->GetControlRotation().Pitch;
+
+	counter += this->GetWorld()->GetDeltaSeconds();
+	const float speed = 5;
+	controller->SetControlRotation(
+		UKismetMathLibrary::RInterpTo(
+			controller->GetControlRotation(),
+			target,
+			counter,
+			speed));
+	if (counter >= 1 / speed)
+	{
+		return;
+	}
+	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, controller, counter]()
+															{ this->AdjustCamera(controller, counter); });
 }
