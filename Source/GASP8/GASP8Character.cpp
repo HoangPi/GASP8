@@ -26,6 +26,8 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 //////////////////////////////////////////////////////////////////////////
 // AGASP8Character
 
+FGameplayTagContainer AGASP8Character::DisableMovementTags;
+
 AGASP8Character::AGASP8Character()
 {
 	// Set size for collision capsule
@@ -65,6 +67,9 @@ AGASP8Character::AGASP8Character()
 
 	this->IsGuarding = false;
 	this->GuardWeight = 0.0f;
+
+	AGASP8Character::DisableMovementTags.AddTag(Tags::PlayerState::on_air);
+	AGASP8Character::DisableMovementTags.AddTag(Tags::PlayerState::disabled);
 
 	this->AbilitySystemComponent = this->CreateDefaultSubobject<UAbilitySystemComponent>(FName("MCAbilitySystemComponent"));
 	this->SetupMyComponents();
@@ -117,6 +122,10 @@ void AGASP8Character::Move(const FInputActionValue &Value)
 	if (this->AbilitySystemComponent->HasMatchingGameplayTag(Tags::PlayerState::disabled))
 	{
 		return;
+	}
+	if(this->AbilitySystemComponent->HasMatchingGameplayTag(Tags::PlayerState::on_air))
+	{
+		AddMovementInput(this->GetActorRotation().Vector(), 1);
 	}
 	FVector2D MovementVector = Value.Get<FVector2D>();
 

@@ -79,6 +79,7 @@ public:
 	FVector Velocity;
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float GroundSpeed;
+	static FGameplayTagContainer DisableMovementTags;
 
 	UFUNCTION()
 	void HandleGuardEvent(bool IsGuarding);
