@@ -105,9 +105,13 @@ void UComponentLockon::Lockon()
 			this->ActorsToIgnore))
 	{
 		AController *controller = this->MyOwner->GetController();
-		FRotator target = this->MyOwner->GetActorRotation();
 		if (!controller->LineOfSightTo(result.GetActor(), this->MyOwner->GetFollowCamera()->GetComponentLocation()))
 		{
+			FRotator target = this->MyOwner->GetActorRotation();
+			FRotator temp = controller->GetControlRotation();
+			target.Normalize();
+			temp.Normalize();
+			controller->SetControlRotation(temp);
 			this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, controller, target]()
 																	{ this->AdjustCamera(controller, target); });
 			return;
@@ -121,6 +125,10 @@ void UComponentLockon::Lockon()
 	{
 		AController *controller = this->MyOwner->GetController();
 		FRotator target = this->MyOwner->GetActorRotation();
+		FRotator temp = controller->GetControlRotation();
+		target.Normalize();
+		temp.Normalize();
+		controller->SetControlRotation(temp);
 		if (!controller->LineOfSightTo(result.GetActor(), this->MyOwner->GetFollowCamera()->GetComponentLocation()))
 		{
 			this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, controller, target]()
@@ -209,11 +217,16 @@ void UComponentLockon::AdjustCamera(AController *controller, FRotator target, fl
 	counter += this->GetWorld()->GetDeltaSeconds();
 	const float speed = 5.0f;
 	const float interWeight = counter * speed;
+	
 	FRotator result = controller->GetControlRotation();
-	result.Yaw = FMath::InterpEaseInOut<float>(controller->GetControlRotation().Yaw, target.Yaw, interWeight, 2.0f);
+	double currentYaw = result.Yaw;
+	double targetYaw = target.Yaw;
+	double deltaYaw = FRotator::NormalizeAxis(targetYaw - currentYaw);
+	deltaYaw = FMath::InterpEaseInOut<double>(0.0f, deltaYaw, interWeight, 2.0f);
+	result.Yaw += deltaYaw;
 	controller->SetControlRotation(result);
-	GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Blue, FString::Printf(TEXT("%f"), counter));
-	if(interWeight >= 1.0f)
+
+	if (interWeight >= 1.0f)
 	{
 		return;
 	}
