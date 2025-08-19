@@ -40,7 +40,7 @@ public:
 	UFUNCTION()
 	void Switch(const FInputActionValue &Value);
 
-	void AdjustCamera(AController *controller, float counter = 0.0f);
+	void AdjustCamera(AController *controller, FRotator target, float counter = 0.0f);
 
 protected:
 	// Called when the game starts

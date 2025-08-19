@@ -9,6 +9,7 @@
 #include "Ultilities/GobalVars.h"
 #include "MyEffects/Cooldown/EffectGenericCooldown.h"
 #include "MyTags/MyTags.h"
+#include "Math/UnrealMathUtility.h"
 
 // Sets default values for this component's properties
 UComponentLockon::UComponentLockon()
@@ -104,6 +105,7 @@ void UComponentLockon::Lockon()
 			this->ActorsToIgnore))
 	{
 		AController *controller = this->MyOwner->GetController();
+		FRotator target = this->MyOwner->GetActorRotation();
 		if (!controller->LineOfSightTo(result.GetActor(), this->MyOwner->GetFollowCamera()->GetComponentLocation()))
 		{
 			this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, controller, target]()
@@ -118,10 +120,11 @@ void UComponentLockon::Lockon()
 	else
 	{
 		AController *controller = this->MyOwner->GetController();
+		FRotator target = this->MyOwner->GetActorRotation();
 		if (!controller->LineOfSightTo(result.GetActor(), this->MyOwner->GetFollowCamera()->GetComponentLocation()))
 		{
-			this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, controller]()
-																	{ this->AdjustCamera(controller); });
+			this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, controller, target]()
+																	{ this->AdjustCamera(controller, target); });
 		}
 	}
 }
@@ -201,23 +204,20 @@ void UComponentLockon::Switch(const FInputActionValue &Value)
 	}
 }
 
-void UComponentLockon::AdjustCamera(AController *controller, float counter)
+void UComponentLockon::AdjustCamera(AController *controller, FRotator target, float counter)
 {
-	FRotator target = this->MyOwner->GetActorRotation();
-	target.Pitch = controller->GetControlRotation().Pitch;
-
 	counter += this->GetWorld()->GetDeltaSeconds();
-	const float speed = 5;
-	controller->SetControlRotation(
-		UKismetMathLibrary::RInterpTo(
-			controller->GetControlRotation(),
-			target,
-			counter,
-			speed));
-	if (counter >= 1 / speed)
+	const float speed = 5.0f;
+	const float interWeight = counter * speed;
+	FRotator result = controller->GetControlRotation();
+	result.Yaw = FMath::InterpEaseInOut<float>(controller->GetControlRotation().Yaw, target.Yaw, interWeight, 2.0f);
+	controller->SetControlRotation(result);
+	GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Blue, FString::Printf(TEXT("%f"), counter));
+	if(interWeight >= 1.0f)
 	{
 		return;
 	}
-	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, controller, counter]()
-															{ this->AdjustCamera(controller, counter); });
+
+	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, controller, counter, target]()
+															{ this->AdjustCamera(controller, target, counter); });
 }
