@@ -106,8 +106,9 @@ void UComponentLockon::Lockon()
 		AController *controller = this->MyOwner->GetController();
 		if (!controller->LineOfSightTo(result.GetActor(), this->MyOwner->GetFollowCamera()->GetComponentLocation()))
 		{
-			this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, controller]()
-																	{ this->AdjustCamera(controller); });
+			this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, controller, target]()
+																	{ this->AdjustCamera(controller, target); });
+			return;
 		}
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, result.GetActor()->GetName());
 		this->LockonTarget = result.GetActor();
