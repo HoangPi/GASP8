@@ -7,7 +7,7 @@
 #include "EffectGenericCooldown.generated.h"
 
 /**
- * 
+ * # Set the cooldown with tag EffectType::Cooldown before applying
  */
 UCLASS()
 class UEffectGenericCooldown : public UGameplayEffect
@@ -16,7 +16,4 @@ class UEffectGenericCooldown : public UGameplayEffect
 	
 public:
 	UEffectGenericCooldown();
-
-	// Set the new cooldown for sub object (the default cooldown is 5s)
-	void SetCooldown(float NewCooldown);
 };
