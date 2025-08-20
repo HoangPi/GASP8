@@ -24,8 +24,6 @@ UComponentLockon::UComponentLockon()
 	if (IAbilitySystemInterface *owner = this->GetOwner<IAbilitySystemInterface>())
 	{
 		this->OwnerASC = owner->GetAbilitySystemComponent();
-		this->cooldownEffect = this->CreateDefaultSubobject<UEffectGenericCooldown>(FName("SwitchCooldown"));
-		this->cooldownEffect->SetCooldown(1.0f);
 	}
 	this->CollisionObject.AddObjectTypesToQuery(ECollisionChannel::ECC_GameTraceChannel1);
 	this->ActorsToIgnore.AddIgnoredActor(this->GetOwner());
@@ -39,7 +37,11 @@ void UComponentLockon::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	this->CooldownSpec = FGameplayEffectSpec(this->cooldownEffect, this->OwnerASC->MakeEffectContext(), 1.0f);
+	this->CooldownSpec = FGameplayEffectSpec(
+		(UEffectGenericCooldown *)UEffectGenericCooldown::StaticClass()->GetDefaultObject(), 
+		this->OwnerASC->MakeEffectContext(), 
+		1.0f);
+	this->CooldownSpec.SetSetByCallerMagnitude(Tags::EffectType::cooldown, 1.0f);
 	if (AGASP8Character *owner = this->GetOwner<AGASP8Character>())
 	{
 		if (UEnhancedInputComponent *input = Cast<UEnhancedInputComponent>(owner->InputComponent))
