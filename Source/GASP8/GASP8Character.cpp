@@ -65,15 +65,21 @@ AGASP8Character::AGASP8Character()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character)
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
+	// #region SetUpDefaultProperties 
+	// #tag Animation_state
 	this->IsGuarding = false;
 	this->GuardWeight = 0.0f;
-
+	
 	AGASP8Character::DisableMovementTags.AddTag(Tags::PlayerState::on_air);
 	AGASP8Character::DisableMovementTags.AddTag(Tags::PlayerState::disabled);
-
+	
+	// #tag Ability_System_Component
 	this->AbilitySystemComponent = this->CreateDefaultSubobject<UAbilitySystemComponent>(FName("MCAbilitySystemComponent"));
+	// #tag Components
 	this->SetupMyComponents();
+	// #tag Team
 	this->SetGenericTeamId((uint8)ETeamEnum::Player);
+	// #endregion
 }
 
 //////////////////////////////////////////////////////////////////////////
