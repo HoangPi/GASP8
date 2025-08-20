@@ -32,7 +32,6 @@ public:
 	FCollisionQueryParams ActorsToIgnore;
 	FGameplayEffectSpec CooldownSpec;
 	FActiveGameplayEffectHandle CooldownHandle;
-	class UEffectGenericCooldown *cooldownEffect;
 
 	inline void SetupMyInputs(UEnhancedInputComponent *input);
 	UFUNCTION()
