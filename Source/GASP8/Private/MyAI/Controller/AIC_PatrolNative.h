@@ -29,7 +29,7 @@ class AAIC_PatrolNative : public AAIController
 public:
 	AAIC_PatrolNative();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BehaviorTree")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "BehaviorTree")
 	UBehaviorTree *EnemyTree;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AIPerception")
