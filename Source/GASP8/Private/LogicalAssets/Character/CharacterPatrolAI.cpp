@@ -15,6 +15,7 @@ ACharacterPatrolAI::ACharacterPatrolAI()
 	this->RetracePatrol = true,
 	this->Direction = EPatrolDirection::FORAWRD;
 	this->Team = ETeamEnum::Enemy;
+	this->AbilitySystemComponent = this->CreateDefaultSubobject<UAbilitySystemComponent>(FName("EnemyASC"));
 }
 
 // Called when the game starts or when spawned

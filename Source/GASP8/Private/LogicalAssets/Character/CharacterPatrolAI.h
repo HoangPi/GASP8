@@ -7,11 +7,13 @@
 
 #include "Animation/AnimMontage.h"
 #include "Ultilities/TeamEnum.h"
+#include "AbilitySystemInterface.h"
+#include "AbilitySystemComponent.h"
 
 #include "CharacterPatrolAI.generated.h"
 
 UCLASS()
-class ACharacterPatrolAI : public ACharacter
+class ACharacterPatrolAI : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -49,6 +51,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AIPerception")
 	ETeamEnum Team;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilitySystemComponent")
+	UAbilitySystemComponent *AbilitySystemComponent;
+
+	virtual UAbilitySystemComponent *GetAbilitySystemComponent() const override { return this->AbilitySystemComponent; }
 
 protected:
 	// Called when the game starts or when spawned
