@@ -14,7 +14,7 @@ AAIC_PatrolNative::AAIC_PatrolNative()
     sightConfig->SetMaxAge(2);
     this->AIPerception->ConfigureSense(*sightConfig);
 
-    this->Team = ETeamEnum::Enemy;
+    // this->Team = ETeamEnum::Enemy;
 
     FScriptDelegate onTargetUpdatedDelegate;
     onTargetUpdatedDelegate.BindUFunction(this, FName("OnTargetUpdated"));
@@ -29,7 +29,7 @@ AAIC_PatrolNative::AAIC_PatrolNative()
 void AAIC_PatrolNative::OnPossess(APawn *InPawn)
 {
     Super::OnPossess(InPawn);
-    this->SetGenericTeamId(FGenericTeamId((uint8)this->Team));
+    this->SetGenericTeamId(FGenericTeamId((uint8)ETeamEnum::Enemy));
     this->RunBehaviorTree(this->EnemyTree);
     this->Blackboard.Get()->SetValueAsBool(this->IsPatrolingKey, true);
 }
