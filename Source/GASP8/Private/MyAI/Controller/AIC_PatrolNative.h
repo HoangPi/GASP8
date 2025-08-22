@@ -47,8 +47,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "BehaviorTree")
 	FName IsChasingKey;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AIPerception")
-	ETeamEnum Team;
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "AIPerception")
+	// ETeamEnum Team;
+
+	UFUNCTION(BlueprintCallable, Category = "AIPerception")
+	void SetTeam(ETeamEnum newTeam) { /*this->Team = newTeam;*/ this->SetGenericTeamId(FGenericTeamId((uint8)newTeam)); };
 
 	virtual void OnPossess(APawn *InPawn);
 

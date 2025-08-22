@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 
 #include "Animation/AnimMontage.h"
+#include "Ultilities/TeamEnum.h"
 
 #include "CharacterPatrolAI.generated.h"
 
@@ -45,6 +46,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Patrol")
 	int Direction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AIPerception")
+	ETeamEnum Team;
 
 protected:
 	// Called when the game starts or when spawned
