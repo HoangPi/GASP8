@@ -20,9 +20,9 @@ class UAttributeHealth : public UAttributeSet
 public:
 	UAttributeHealth();
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayAttributeData Health;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayAttributeData MaxHealth;
 
 	UPROPERTY(BlueprintAssignable)
