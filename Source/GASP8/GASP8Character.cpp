@@ -144,16 +144,28 @@ void AGASP8Character::Move(const FInputActionValue &Value)
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-
+		
 		// get forward vector
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-
+		
 		// get right vector
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-		// add movement
-		AddMovementInput(ForwardDirection, MovementVector.Y);
-		AddMovementInput(RightDirection, MovementVector.X);
+		
+		if(this->IsHuggingWall)
+		{
+			FVector camRot = this->GetFollowCamera()->GetForwardVector();
+			camRot.Z = 0;
+			camRot.Normalize();
+			FVector target = {MovementVector.X, MovementVector.Y, 0.0f};
+			target.Normalize();
+			this->MyWallHugComponent->WallHugMovement(FVector::DotProduct(camRot, target) < 0);
+		}
+		else
+		{
+			// add movement
+			AddMovementInput(ForwardDirection, MovementVector.Y);
+			AddMovementInput(RightDirection, MovementVector.X);
+		}
 
 		// Update movement information
 		this->Velocity = this->GetCharacterMovement()->Velocity;
