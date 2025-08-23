@@ -70,6 +70,7 @@ AGASP8Character::AGASP8Character()
 	// #tag Animation_state
 	this->IsGuarding = false;
 	this->GuardWeight = 0.0f;
+	this->IsHuggingWall = false;
 	
 	AGASP8Character::DisableMovementTags.AddTag(Tags::PlayerState::on_air);
 	AGASP8Character::DisableMovementTags.AddTag(Tags::PlayerState::disabled);
@@ -137,6 +138,7 @@ void AGASP8Character::Move(const FInputActionValue &Value)
 	}
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
+	
 	if (Controller != nullptr)
 	{
 		// find out which way is forward
@@ -227,7 +229,7 @@ void AGASP8Character::Tick(float DeltaSeconds)
 void AGASP8Character::SetupMyComponents()
 {
 	this->CreateDefaultSubobject<UComponentSprint>(FName("MovementComponent"));
-	this->CreateDefaultSubobject<UComponentWallHug>(FName("WallHugComponent"));
+	this->MyWallHugComponent = this->CreateDefaultSubobject<UComponentWallHug>(FName("WallHugComponent"));
 	UComponentGuard *tempGuardComponent = this->CreateDefaultSubobject<UComponentGuard>(FName("MyGuardComponent"));
 	UAttributeHealth *healthAttribute = this->CreateDefaultSubobject<UAttributeHealth>(FName("HealthAttribute"));
 	this->MyLockonComponent = this->CreateDefaultSubobject<UComponentLockon>(FName("LockonComponent"));

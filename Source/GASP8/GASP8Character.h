@@ -58,6 +58,7 @@ public:
 
 	UAbilitySystemComponent *AbilitySystemComponent;
 	class UComponentLockon *MyLockonComponent;
+	class UComponentWallHug *MyWallHugComponent;
 	FGenericTeamId PlayerTeam;
 
 	UPROPERTY(BlueprintAssignable, Category = "AnimState")
@@ -68,6 +69,7 @@ public:
 	FOnGuardWeigthUpdated NotifyGuardWeigthChange;
 	float GuardWeight;
 	bool IsGuarding;
+	bool IsHuggingWall;
 
 	inline void SetupMyComponents();
 
