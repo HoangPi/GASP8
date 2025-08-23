@@ -8,6 +8,7 @@
 #include "MyEffects/Attribute/Stamina/EffectReduceStamina.h"
 #include "MyAttributes/Stamina/AttributeStamina.h"
 #include "MyEffects/PlayerState/EffectDisable.h"
+#include "GASP8/GASP8Character.h"
 #include "MyAbilities/Combat/DisableAndRecover/AbilityDisableAndRecover.h"
 
 UAbilityGetHit::UAbilityGetHit()
@@ -43,7 +44,7 @@ void UAbilityGetHit::ActivateAbility(
 
     // If is deflecting
     // But for skisue branch it can skip the init steps
-    if (ownerASC->GetActiveGameplayEffect(*this->DeflectHandle))
+    if (this->DeflectHandle && ownerASC->GetActiveGameplayEffect(*this->DeflectHandle))
     {
         ownerASC->RemoveActiveGameplayEffect(*this->DeflectHandle, 1);
         staminaSpec = FGameplayEffectSpec((UEffectReduceStamina *)UEffectReduceStamina::StaticClass()->GetDefaultObject(), context);
@@ -52,7 +53,7 @@ void UAbilityGetHit::ActivateAbility(
         // this->EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
     }
     // If is "guarding"
-    else if (ownerASC->GetActiveGameplayEffect(*this->GuardHandle))
+    else if (this->GuardHandle && ownerASC->GetActiveGameplayEffect(*this->GuardHandle))
     {
         ownerASC->RemoveActiveGameplayEffect(*this->GuardHandle, 1);
         staminaSpec = FGameplayEffectSpec((UEffectReduceStamina *)UEffectReduceStamina::StaticClass()->GetDefaultObject(), context);
@@ -89,6 +90,10 @@ void UAbilityGetHit::ActivateAbility(
 void UAbilityGetHit::OnAvatarSet(const FGameplayAbilityActorInfo *ActorInfo, const FGameplayAbilitySpec &Spec)
 {
     Super::OnAvatarSet(ActorInfo, Spec);
+    if(!Cast<AGASP8Character>(ActorInfo->AvatarActor.Get()))
+    {
+        return;
+    }
     UAbilityGuard *guard = (UAbilityGuard *)ActorInfo->AbilitySystemComponent.Get()->FindAbilitySpecFromClass(UAbilityGuard::StaticClass())->GetPrimaryInstance();
     this->DeflectHandle = &guard->DeflectHandle;
     this->GuardHandle = &guard->GuardHandle;

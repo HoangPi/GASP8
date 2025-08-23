@@ -9,6 +9,7 @@
 #include "Ultilities/TeamEnum.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent.h"
+#include "MyAbilities/Combat/Guard/AbilityGetHit.h"
 
 #include "CharacterPatrolAI.generated.h"
 
@@ -52,10 +53,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AIPerception")
 	ETeamEnum Team;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilitySystemComponent")
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AbilitySystemComponent")
 	UAbilitySystemComponent *AbilitySystemComponent;
 
+	// UFUNCTION(DisplayName = "GetMyAbilitySystemComponent", BlueprintCallable)
 	virtual UAbilitySystemComponent *GetAbilitySystemComponent() const override { return this->AbilitySystemComponent; }
+
+	virtual void NotifyHit(UPrimitiveComponent *MyComp, AActor *Other, UPrimitiveComponent *OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult &Hit);
 
 protected:
 	// Called when the game starts or when spawned

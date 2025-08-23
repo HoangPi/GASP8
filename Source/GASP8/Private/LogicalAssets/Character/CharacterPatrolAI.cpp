@@ -4,6 +4,8 @@
 #include "LogicalAssets/Character/CharacterPatrolAI.h"
 
 #include "MyAI/Controller/AIC_PatrolNative.h"
+#include "MyTags/MyTags.h"
+#include "MyAttributes/Health/AttributeHealth.h"
 
 // Sets default values
 ACharacterPatrolAI::ACharacterPatrolAI()
@@ -16,6 +18,10 @@ ACharacterPatrolAI::ACharacterPatrolAI()
 	this->Direction = EPatrolDirection::FORAWRD;
 	this->Team = ETeamEnum::Enemy;
 	this->AbilitySystemComponent = this->CreateDefaultSubobject<UAbilitySystemComponent>(FName("EnemyASC"));
+	this->AbilitySystemComponent->AddAttributeSetSubobject<UAttributeHealth>(
+		this->CreateDefaultSubobject<UAttributeHealth>(FName("EmenyHealthPoint"))
+	);
+	// this->GiftAbility(UAbilityGetHit::StaticClass());
 }
 
 // Called when the game starts or when spawned
@@ -39,3 +45,18 @@ void ACharacterPatrolAI::BeginPlay()
 
 // }
 
+void ACharacterPatrolAI::NotifyHit(
+	UPrimitiveComponent *MyComp, 
+	AActor *Other, UPrimitiveComponent *OtherComp, 
+	bool bSelfMoved, 
+	FVector HitLocation, 
+	FVector HitNormal, 
+	FVector NormalImpulse, 
+	const FHitResult &Hit)
+{
+	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
+	// FGameplayEventData event;
+	// event.EventTag = Tags::Ability::get_hit;
+	// event.EventMagnitude = 50.0f;
+	// this->AbilitySystemComponent->HandleGameplayEvent(Tags::Ability::get_hit, &event);
+}
