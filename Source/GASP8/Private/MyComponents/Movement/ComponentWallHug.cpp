@@ -63,7 +63,6 @@ void UComponentWallHug::WallHug()
 			this->GetWorld(),
 			start,
 			end,
-			// 20,
 			ObjectTypes,
 			false,
 			ActorsToIgnore,
@@ -75,11 +74,6 @@ void UComponentWallHug::WallHug()
 			5.0f))
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, result.GetActor()->GetName());
-		// if(result.Distance <= 50)
-		// {
-		// 	return;
-		// }
-		// result.ImpactPoint.Z -= 50;
 		result.ImpactPoint.Z = this->GetOwner()->GetActorLocation().Z;
 		this->GetOwner()->SetActorLocationAndRotation(
 			result.ImpactPoint,
@@ -87,16 +81,32 @@ void UComponentWallHug::WallHug()
 			true);
 		this->MyOwner->IsHuggingWall = true;
 		this->MyOwner->GetCharacterMovement()->bOrientRotationToMovement = false;
-		// this->GetOwner()->SetActorLocation(UKismetMathLibrary::VInterpTo(
-		// 	this->GetOwner()->GetActorLocation(),
-		// 	result.Location,
-		// 	0.8f,
-		// 	1
-		// ));
 	}
 }
 
 void UComponentWallHug::WallHugMovement(bool IsMovingLeft)
 {
-	this->MyOwner->AddMovementInput(this->MyOwner->GetActorRotation().RotateVector({0.0f, (IsMovingLeft ? 1.0f : -1.0f), 0.0f}), 1.0f);
+	FVector start = this->MyOwner->GetActorLocation();
+	start += this->MyOwner->GetActorRotation().RotateVector({0.0f, (IsMovingLeft ? 1.0f : -1.0f), 0.0f}) * 50;
+	FVector end = start + (-this->MyOwner->GetActorRotation().Vector()) * 100.0f;
+	FHitResult result;
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	ObjectTypes.AddUnique(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
+	TArray<AActor *> ActorsToIgnore;
+	if (UKismetSystemLibrary::LineTraceSingleForObjects(
+			this->GetWorld(),
+			start,
+			end,
+			ObjectTypes,
+			false,
+			ActorsToIgnore,
+			EDrawDebugTrace::ForDuration,
+			result,
+			true,
+			FLinearColor::Red,
+			FLinearColor::Green,
+			5.0f))
+	{
+		this->MyOwner->AddMovementInput(this->MyOwner->GetActorRotation().RotateVector({0.0f, (IsMovingLeft ? 1.0f : -1.0f), 0.0f}), 1.0f);
+	}
 }
