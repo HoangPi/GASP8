@@ -12,6 +12,7 @@
 #include "InputActionValue.h"
 
 #include "MyComponents/Movement/ComponentSprint.h"
+#include "MyComponents/Movement/ComponentWallHug.h"
 #include "MyComponents/Combat/Lockon/ComponentLockon.h"
 #include "MyComponents/Combat/Guard/ComponentGuard.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -226,6 +227,7 @@ void AGASP8Character::Tick(float DeltaSeconds)
 void AGASP8Character::SetupMyComponents()
 {
 	this->CreateDefaultSubobject<UComponentSprint>(FName("MovementComponent"));
+	this->CreateDefaultSubobject<UComponentWallHug>(FName("WallHugComponent"));
 	UComponentGuard *tempGuardComponent = this->CreateDefaultSubobject<UComponentGuard>(FName("MyGuardComponent"));
 	UAttributeHealth *healthAttribute = this->CreateDefaultSubobject<UAttributeHealth>(FName("HealthAttribute"));
 	this->MyLockonComponent = this->CreateDefaultSubobject<UComponentLockon>(FName("LockonComponent"));
