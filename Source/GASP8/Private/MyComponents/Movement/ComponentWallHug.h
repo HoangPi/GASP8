@@ -6,6 +6,9 @@
 #include "Components/ActorComponent.h"
 
 #include "EnhancedInputComponent.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 #include "ComponentWallHug.generated.h"
 
@@ -22,6 +25,8 @@ public:
 	UInputAction *InteractAction;
 
 	void WallHug();
+	void WallHugMovement(bool IsMovingLeft = true);
+	class AGASP8Character *MyOwner;
 
 protected:
 	// Called when the game starts
