@@ -66,15 +66,15 @@ AGASP8Character::AGASP8Character()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character)
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
-	// #region SetUpDefaultProperties 
+	// #region SetUpDefaultProperties
 	// #tag Animation_state
 	this->IsGuarding = false;
 	this->GuardWeight = 0.0f;
 	this->IsHuggingWall = false;
-	
+
 	AGASP8Character::DisableMovementTags.AddTag(Tags::PlayerState::on_air);
 	AGASP8Character::DisableMovementTags.AddTag(Tags::PlayerState::disabled);
-	
+
 	// #tag Ability_System_Component
 	this->AbilitySystemComponent = this->CreateDefaultSubobject<UAbilitySystemComponent>(FName("MCAbilitySystemComponent"));
 	// #tag Components
@@ -131,34 +131,43 @@ void AGASP8Character::Move(const FInputActionValue &Value)
 	{
 		return;
 	}
-	if(this->AbilitySystemComponent->HasMatchingGameplayTag(Tags::PlayerState::on_air))
+	if (this->AbilitySystemComponent->HasMatchingGameplayTag(Tags::PlayerState::on_air))
 	{
 		AddMovementInput(this->GetActorRotation().Vector(), 1);
 		return;
 	}
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
-	
 	if (Controller != nullptr)
 	{
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-		
+
 		// get forward vector
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		
+
 		// get right vector
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		
-		if(this->IsHuggingWall)
+		GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Blue, MovementVector.ToString());
+		// #tag Hugging_Wall
+		if (this->IsHuggingWall)
 		{
-			FVector camRot = this->GetFollowCamera()->GetForwardVector();
-			camRot.Z = 0;
-			camRot.Normalize();
-			FVector target = {MovementVector.X, MovementVector.Y, 0.0f};
-			target.Normalize();
-			this->MyWallHugComponent->WallHugMovement(FVector::DotProduct(camRot, target) < 0);
+			// I dont even understand the math behind this, just pure chatgtp and trial and error
+			// I dont even want to opt this thing (well, not that there is much to do)
+			FRotator cameraRotation(0, this->GetFollowCamera()->GetComponentRotation().Yaw, 0);
+			FRotator actorRotation = this->GetActorRotation();
+
+			// double dotProduct1 = FVector::DotProduct(cameraRotation.Vector(), actorRotation.Vector());
+			FVector MovementVector3d(MovementVector.X, MovementVector.Y, 0);
+			MovementVector3d = MovementVector3d.Rotation().RotateVector(actorRotation.Vector());
+			double dotProduct2 = FVector::DotProduct(MovementVector3d, cameraRotation.Vector());
+			// this->MyWallHugComponent->WallHugMovement(
+			// 	dotProduct1 > 0
+			// 		? dotProduct2 < 0
+			// 		: dotProduct2 > 0
+			// );
+			this->MyWallHugComponent->WallHugMovement(dotProduct2 > 0);
 		}
 		else
 		{
@@ -167,7 +176,7 @@ void AGASP8Character::Move(const FInputActionValue &Value)
 			AddMovementInput(RightDirection, MovementVector.X);
 		}
 
-		// Update movement information
+		// #tag Update_Movement_Information
 		this->Velocity = this->GetCharacterMovement()->Velocity;
 		this->GroundSpeed = FVector(Velocity.X, Velocity.Y, 0).Length();
 
