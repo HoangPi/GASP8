@@ -5,6 +5,10 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GASP8/GASP8Character.h"
+#include "Ultilities/Macro.h"
+
+double UComponentWallHug::CameraPeekSpeed = 500.0f;
+double UComponentWallHug::CameraMaxPeekDistance = 50.0f;
 
 // Sets default values for this component's properties
 UComponentWallHug::UComponentWallHug()
@@ -16,6 +20,7 @@ UComponentWallHug::UComponentWallHug()
 	// ...
 	this->InteractAction = LoadObject<UInputAction>(nullptr, TEXT("/Game/ThirdPerson/Input/Actions/IA_Interact.IA_Interact"));
 	this->MyOwner = Cast<AGASP8Character>(this->GetOwner());
+	this->IsHuggingWall = false;
 }
 
 // Called when the game starts
@@ -40,9 +45,9 @@ void UComponentWallHug::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 void UComponentWallHug::WallHug()
 {
-	if (this->MyOwner->IsHuggingWall)
+	if (this->IsHuggingWall)
 	{
-		this->MyOwner->IsHuggingWall = false;
+		this->UpdateIsHuggingWall(false);
 		this->MyOwner->GetCharacterMovement()->bOrientRotationToMovement = true;
 		return;
 	}
@@ -79,7 +84,7 @@ void UComponentWallHug::WallHug()
 			result.ImpactPoint,
 			result.ImpactNormal.Rotation(),
 			true);
-		this->MyOwner->IsHuggingWall = true;
+		this->UpdateIsHuggingWall(true);
 		this->MyOwner->GetCharacterMovement()->bOrientRotationToMovement = false;
 	}
 }
@@ -108,5 +113,41 @@ void UComponentWallHug::WallHugMovement(bool IsMovingLeft)
 			5.0f))
 	{
 		this->MyOwner->AddMovementInput(this->MyOwner->GetActorRotation().RotateVector({0.0f, (IsMovingLeft ? 1.0f : -1.0f), 0.0f}), 1.0f);
+	}
+	else
+	{
+		auto origin = this->MyOwner->GetFollowCamera()->GetRelativeLocation();
+		origin.Y = origin.Y + (IsMovingLeft ? -1.0f : 1.0f) * this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
+		origin.Y = CLAMP(origin.Y, -UComponentWallHug::CameraMaxPeekDistance, UComponentWallHug::CameraMaxPeekDistance);
+		this->MyOwner->GetFollowCamera()->SetRelativeLocation(origin);
+	}
+}
+
+void UComponentWallHug::ResetCamera()
+{
+	auto origin = this->MyOwner->GetFollowCamera()->GetRelativeLocation();
+	if (UKismetMathLibrary::Abs(origin.Y) <= 1.0f)
+	{
+		this->MyOwner->GetFollowCamera()->SetRelativeLocation(FVector{0.0f});
+		return;
+	}
+	double scaleDirection = origin.Y < 0 ? 1.0f : -1.0f;
+	origin.Y += scaleDirection * this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
+	if ((scaleDirection == 1.0f && origin.Y >= 0) || (scaleDirection == -1.0f && origin.Y <= 0))
+	{
+		this->MyOwner->GetFollowCamera()->SetRelativeLocation(FVector{0.0f});
+		return;
+	}
+	this->MyOwner->GetFollowCamera()->SetRelativeLocation(origin);
+	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
+															{ this->ResetCamera(); });
+}
+
+void UComponentWallHug::UpdateIsHuggingWall(bool state)
+{
+	this->IsHuggingWall = state;
+	if(!state)
+	{
+		this->ResetCamera();
 	}
 }
