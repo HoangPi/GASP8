@@ -23,7 +23,7 @@ UComponentWallHug::UComponentWallHug()
 	this->InteractAction = LoadObject<UInputAction>(nullptr, TEXT("/Game/ThirdPerson/Input/Actions/IA_Interact.IA_Interact"));
 	this->MyOwner = Cast<AGASP8Character>(this->GetOwner());
 	this->IsHuggingWall = false;
-	UComponentWallHug::TraceObjects.AddObjectTypesToQuery(ECollisionChannel::ECC_WorldStatic);
+	// UComponentWallHug::TraceObjects.AddObjectTypesToQuery(ECollisionChannel::ECC_WorldStatic);
 }
 
 // Called when the game starts
@@ -56,7 +56,6 @@ void UComponentWallHug::WallHug()
 		this->MyOwner->GetCharacterMovement()->bOrientRotationToMovement = true;
 		return;
 	}
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, FString("Hug"));
 	UCameraComponent *cam = this->MyOwner->GetFollowCamera();
 	FVector start = cam->GetComponentLocation();
 	FRotator rot = cam->GetComponentRotation();
@@ -76,6 +75,22 @@ void UComponentWallHug::WallHug()
 			UComponentWallHug::TraceObjects,
 			UComponentWallHug::ActorsToIgnores))
 	{
+		// Only if adjacent area are flat and big enough
+		FHitResult unusedResult;
+		constexpr double width = 70.0f;
+		int adjacentHit = 0;
+		end = result.Location;
+		end += result.ImpactNormal.ForwardVector * 5;
+		end += result.ImpactNormal.Rotation().RotateVector({0, 1, 0}) * width;
+		adjacentHit += this->GetWorld()->LineTraceSingleByObjectType(unusedResult, start, end, UComponentWallHug::TraceObjects, UComponentWallHug::ActorsToIgnores);
+		// UKismetSystemLibrary::LineTraceSingle(this->GetWorld(), start, end, ETraceTypeQuery::TraceTypeQuery_MAX, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, unusedResult, false, FLinearColor::Blue, FLinearColor::Blue);
+		end += result.ImpactNormal.Rotation().RotateVector({0, -1, 0}) * 2 * width;
+		adjacentHit += this->GetWorld()->LineTraceSingleByObjectType(unusedResult, start, end, UComponentWallHug::TraceObjects, UComponentWallHug::ActorsToIgnores);
+		// UKismetSystemLibrary::LineTraceSingle(this->GetWorld(), start, end, ETraceTypeQuery::TraceTypeQuery_MAX, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, unusedResult, false, FLinearColor::Blue, FLinearColor::Blue);
+		if(!adjacentHit)
+		{
+			return;
+		}
 		result.ImpactPoint.Z = this->MyOwner->GetActorLocation().Z;
 		this->MyOwner->SetActorLocationAndRotation(
 			result.ImpactPoint,
