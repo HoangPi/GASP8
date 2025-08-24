@@ -9,18 +9,21 @@
 
 double UComponentWallHug::CameraPeekSpeed = 500.0f;
 double UComponentWallHug::CameraMaxPeekDistance = 50.0f;
+FCollisionObjectQueryParams UComponentWallHug::TraceObjects;
+FCollisionQueryParams UComponentWallHug::ActorsToIgnores;
 
 // Sets default values for this component's properties
 UComponentWallHug::UComponentWallHug()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
 	// ...
 	this->InteractAction = LoadObject<UInputAction>(nullptr, TEXT("/Game/ThirdPerson/Input/Actions/IA_Interact.IA_Interact"));
 	this->MyOwner = Cast<AGASP8Character>(this->GetOwner());
 	this->IsHuggingWall = false;
+	UComponentWallHug::TraceObjects.AddObjectTypesToQuery(ECollisionChannel::ECC_WorldStatic);
 }
 
 // Called when the game starts
@@ -33,6 +36,8 @@ void UComponentWallHug::BeginPlay()
 	{
 		input->BindAction(this->InteractAction, ETriggerEvent::Started, this, &UComponentWallHug::WallHug);
 	}
+	// Dont want to add non-player/CDO objects
+	UComponentWallHug::ActorsToIgnores.AddIgnoredActor(this->GetOwner());
 }
 
 // Called every frame
@@ -52,41 +57,56 @@ void UComponentWallHug::WallHug()
 		return;
 	}
 	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, FString("Hug"));
-	UCameraComponent *cam = ((AGASP8Character *)this->GetOwner())->GetFollowCamera();
+	UCameraComponent *cam = this->MyOwner->GetFollowCamera();
 	FVector start = cam->GetComponentLocation();
 	FRotator rot = cam->GetComponentRotation();
-	start += rot.Vector() * ((AGASP8Character *)this->GetOwner())->GetCameraBoom()->TargetArmLength;
+	start += rot.Vector() * this->MyOwner->GetCameraBoom()->TargetArmLength;
 	start.Z += 50;
 	rot.Pitch = 0;
 	FVector end = start + rot.Vector() * 100;
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	ObjectTypes.AddUnique(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
-	TArray<AActor *> ActorsToIgnore;
+	// TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	// ObjectTypes.AddUnique(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
+	// TArray<AActor *> ActorsToIgnore;
 	FHitResult result;
 
-	if (UKismetSystemLibrary::LineTraceSingleForObjects(
-			this->GetWorld(),
+	if (this->GetWorld()->LineTraceSingleByObjectType(
+			result,
 			start,
 			end,
-			ObjectTypes,
-			false,
-			ActorsToIgnore,
-			EDrawDebugTrace::ForDuration,
-			result,
-			true,
-			FLinearColor::Red,
-			FLinearColor::Green,
-			5.0f))
+			UComponentWallHug::TraceObjects,
+			UComponentWallHug::ActorsToIgnores))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, result.GetActor()->GetName());
-		result.ImpactPoint.Z = this->GetOwner()->GetActorLocation().Z;
-		this->GetOwner()->SetActorLocationAndRotation(
+		result.ImpactPoint.Z = this->MyOwner->GetActorLocation().Z;
+		this->MyOwner->SetActorLocationAndRotation(
 			result.ImpactPoint,
 			result.ImpactNormal.Rotation(),
 			true);
 		this->UpdateIsHuggingWall(true);
 		this->MyOwner->GetCharacterMovement()->bOrientRotationToMovement = false;
 	}
+	// if (UKismetSystemLibrary::LineTraceSingleForObjects(
+	// 		this->GetWorld(),
+	// 		start,
+	// 		end,
+	// 		ObjectTypes,
+	// 		false,
+	// 		ActorsToIgnore,
+	// 		EDrawDebugTrace::ForDuration,
+	// 		result,
+	// 		true,
+	// 		FLinearColor::Red,
+	// 		FLinearColor::Green,
+	// 		5.0f))
+	// {
+	// 	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, result.GetActor()->GetName());
+	// 	result.ImpactPoint.Z = this->GetOwner()->GetActorLocation().Z;
+	// 	this->GetOwner()->SetActorLocationAndRotation(
+	// 		result.ImpactPoint,
+	// 		result.ImpactNormal.Rotation(),
+	// 		true);
+	// 	this->UpdateIsHuggingWall(true);
+	// 	this->MyOwner->GetCharacterMovement()->bOrientRotationToMovement = false;
+	// }
 }
 
 void UComponentWallHug::WallHugMovement(bool IsMovingLeft)
@@ -95,22 +115,15 @@ void UComponentWallHug::WallHugMovement(bool IsMovingLeft)
 	start += this->MyOwner->GetActorRotation().RotateVector({0.0f, (IsMovingLeft ? 1.0f : -1.0f), 0.0f}) * 50;
 	FVector end = start + (-this->MyOwner->GetActorRotation().Vector()) * 100.0f;
 	FHitResult result;
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	ObjectTypes.AddUnique(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
-	TArray<AActor *> ActorsToIgnore;
-	if (UKismetSystemLibrary::LineTraceSingleForObjects(
-			this->GetWorld(),
+	// TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	// ObjectTypes.AddUnique(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
+	// TArray<AActor *> ActorsToIgnore;
+	if (this->GetWorld()->LineTraceSingleByObjectType(
+			result,
 			start,
 			end,
-			ObjectTypes,
-			false,
-			ActorsToIgnore,
-			EDrawDebugTrace::ForDuration,
-			result,
-			true,
-			FLinearColor::Red,
-			FLinearColor::Green,
-			5.0f))
+			UComponentWallHug::TraceObjects,
+			UComponentWallHug::ActorsToIgnores))
 	{
 		this->MyOwner->AddMovementInput(this->MyOwner->GetActorRotation().RotateVector({0.0f, (IsMovingLeft ? 1.0f : -1.0f), 0.0f}), 1.0f);
 	}
@@ -121,6 +134,28 @@ void UComponentWallHug::WallHugMovement(bool IsMovingLeft)
 		origin.Y = CLAMP(origin.Y, -UComponentWallHug::CameraMaxPeekDistance, UComponentWallHug::CameraMaxPeekDistance);
 		this->MyOwner->GetFollowCamera()->SetRelativeLocation(origin);
 	}
+	// if (UKismetSystemLibrary::LineTraceSingleForObjects(this->GetWorld(),
+	// 													start,
+	// 													end,
+	// 													ObjectTypes,
+	// 													false,
+	// 													ActorsToIgnore,
+	// 													EDrawDebugTrace::ForDuration,
+	// 													result,
+	// 													true,
+	// 													FLinearColor::Red,
+	// 													FLinearColor::Green,
+	// 													5.0f))
+	// {
+	// 	this->MyOwner->AddMovementInput(this->MyOwner->GetActorRotation().RotateVector({0.0f, (IsMovingLeft ? 1.0f : -1.0f), 0.0f}), 1.0f);
+	// }
+	// else
+	// {
+	// 	auto origin = this->MyOwner->GetFollowCamera()->GetRelativeLocation();
+	// 	origin.Y = origin.Y + (IsMovingLeft ? -1.0f : 1.0f) * this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
+	// 	origin.Y = CLAMP(origin.Y, -UComponentWallHug::CameraMaxPeekDistance, UComponentWallHug::CameraMaxPeekDistance);
+	// 	this->MyOwner->GetFollowCamera()->SetRelativeLocation(origin);
+	// }
 }
 
 void UComponentWallHug::ResetCamera()
@@ -146,7 +181,7 @@ void UComponentWallHug::ResetCamera()
 void UComponentWallHug::UpdateIsHuggingWall(bool state)
 {
 	this->IsHuggingWall = state;
-	if(!state)
+	if (!state)
 	{
 		this->ResetCamera();
 	}

@@ -34,6 +34,8 @@ public:
 
 	static double CameraPeekSpeed;
 	static double CameraMaxPeekDistance;
+	static FCollisionObjectQueryParams TraceObjects;
+	static FCollisionQueryParams ActorsToIgnores;
 
 protected:
 	// Called when the game starts
