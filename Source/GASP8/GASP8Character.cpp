@@ -148,7 +148,7 @@ void AGASP8Character::Move(const FInputActionValue &Value)
 
 		// get right vector
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Blue, MovementVector.ToString());
+
 		// #tag Hugging_Wall
 		if (this->MyWallHugComponent->IsHuggingWall)
 		{
