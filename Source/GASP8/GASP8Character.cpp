@@ -70,7 +70,6 @@ AGASP8Character::AGASP8Character()
 	// #tag Animation_state
 	this->IsGuarding = false;
 	this->GuardWeight = 0.0f;
-	this->IsHuggingWall = false;
 
 	AGASP8Character::DisableMovementTags.AddTag(Tags::PlayerState::on_air);
 	AGASP8Character::DisableMovementTags.AddTag(Tags::PlayerState::disabled);
@@ -151,7 +150,7 @@ void AGASP8Character::Move(const FInputActionValue &Value)
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Blue, MovementVector.ToString());
 		// #tag Hugging_Wall
-		if (this->IsHuggingWall)
+		if (this->MyWallHugComponent->IsHuggingWall)
 		{
 			// I dont even understand the math behind this, just pure chatgtp and trial and error
 			// I dont even want to opt this thing (well, not that there is much to do)
@@ -287,4 +286,8 @@ void AGASP8Character::StopMoving()
 	this->ShouldMove = false;
 	this->NotifyShouldMoveChange.Broadcast(false);
 	this->AbilitySystemComponent->RemoveLooseGameplayTag(Tags::PlayerState::should_move);
+	if(this->MyWallHugComponent->IsHuggingWall)
+	{
+		this->MyWallHugComponent->ResetCamera();
+	}
 }

@@ -69,7 +69,6 @@ public:
 	FOnGuardWeigthUpdated NotifyGuardWeigthChange;
 	float GuardWeight;
 	bool IsGuarding;
-	bool IsHuggingWall;
 
 	inline void SetupMyComponents();
 
