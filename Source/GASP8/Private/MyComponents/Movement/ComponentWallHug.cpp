@@ -53,7 +53,7 @@ void UComponentWallHug::WallHug()
 	if (this->IsHuggingWall)
 	{
 		this->UpdateIsHuggingWall(false);
-		this->MyOwner->GetCharacterMovement()->bOrientRotationToMovement = true;
+		// this->MyOwner->GetCharacterMovement()->bOrientRotationToMovement = true;
 		return;
 	}
 	UCameraComponent *cam = this->MyOwner->GetFollowCamera();
@@ -62,10 +62,10 @@ void UComponentWallHug::WallHug()
 	start += rot.Vector() * this->MyOwner->GetCameraBoom()->TargetArmLength;
 	start.Z += 50;
 	rot.Pitch = 0;
-	FVector end = start + rot.Vector() * 100;
+	FVector end = start + rot.Vector() * 150;
 	// TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 	// ObjectTypes.AddUnique(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
-	// TArray<AActor *> ActorsToIgnore;
+	TArray<AActor *> ActorsToIgnore;
 	FHitResult result;
 
 	if (this->GetWorld()->LineTraceSingleByObjectType(
@@ -77,27 +77,32 @@ void UComponentWallHug::WallHug()
 	{
 		// Only if adjacent area are flat and big enough
 		FHitResult unusedResult;
-		constexpr double width = 70.0f;
-		int adjacentHit = 0;
+		start = result.Location + result.Normal * 50;
+		constexpr double width = 160.0f;
+		bool adjacentHit = false;
 		end = result.Location;
-		end += result.ImpactNormal.ForwardVector * 5;
+		end -= result.ImpactNormal * 50;
 		end += result.ImpactNormal.Rotation().RotateVector({0, 1, 0}) * width;
-		adjacentHit += this->GetWorld()->LineTraceSingleByObjectType(unusedResult, start, end, UComponentWallHug::TraceObjects, UComponentWallHug::ActorsToIgnores);
-		// UKismetSystemLibrary::LineTraceSingle(this->GetWorld(), start, end, ETraceTypeQuery::TraceTypeQuery_MAX, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, unusedResult, false, FLinearColor::Blue, FLinearColor::Blue);
+		UKismetSystemLibrary::LineTraceSingle(this->GetWorld(), start, end, ETraceTypeQuery::TraceTypeQuery_MAX, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, unusedResult, false, FLinearColor::Blue, FLinearColor::Blue);
+		if(this->GetWorld()->LineTraceSingleByObjectType(unusedResult, start, end, UComponentWallHug::TraceObjects, UComponentWallHug::ActorsToIgnores))
+		{
+			goto setup_hugging_wall;
+		}
 		end += result.ImpactNormal.Rotation().RotateVector({0, -1, 0}) * 2 * width;
-		adjacentHit += this->GetWorld()->LineTraceSingleByObjectType(unusedResult, start, end, UComponentWallHug::TraceObjects, UComponentWallHug::ActorsToIgnores);
-		// UKismetSystemLibrary::LineTraceSingle(this->GetWorld(), start, end, ETraceTypeQuery::TraceTypeQuery_MAX, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, unusedResult, false, FLinearColor::Blue, FLinearColor::Blue);
-		if(!adjacentHit)
+		UKismetSystemLibrary::LineTraceSingle(this->GetWorld(), start, end, ETraceTypeQuery::TraceTypeQuery_MAX, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, unusedResult, false, FLinearColor::Blue, FLinearColor::Blue);
+		if(!this->GetWorld()->LineTraceSingleByObjectType(unusedResult, start, end, UComponentWallHug::TraceObjects, UComponentWallHug::ActorsToIgnores))
 		{
 			return;
 		}
+		
+setup_hugging_wall:
 		result.ImpactPoint.Z = this->MyOwner->GetActorLocation().Z;
 		this->MyOwner->SetActorLocationAndRotation(
 			result.ImpactPoint,
 			result.ImpactNormal.Rotation(),
 			true);
 		this->UpdateIsHuggingWall(true);
-		this->MyOwner->GetCharacterMovement()->bOrientRotationToMovement = false;
+		// this->MyOwner->GetCharacterMovement()->bOrientRotationToMovement = false;
 	}
 	// if (UKismetSystemLibrary::LineTraceSingleForObjects(
 	// 		this->GetWorld(),
@@ -196,6 +201,7 @@ void UComponentWallHug::ResetCamera()
 void UComponentWallHug::UpdateIsHuggingWall(bool state)
 {
 	this->IsHuggingWall = state;
+	this->MyOwner->GetCharacterMovement()->bOrientRotationToMovement = !state;
 	if (!state)
 	{
 		this->ResetCamera();
