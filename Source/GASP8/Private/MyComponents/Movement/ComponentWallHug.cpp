@@ -79,7 +79,6 @@ void UComponentWallHug::WallHug()
 		FHitResult unusedResult;
 		start = result.Location + result.Normal * 50;
 		constexpr double width = 160.0f;
-		bool adjacentHit = false;
 		end = result.Location;
 		end -= result.ImpactNormal * 50;
 		end += result.ImpactNormal.Rotation().RotateVector({0, 1, 0}) * width;
