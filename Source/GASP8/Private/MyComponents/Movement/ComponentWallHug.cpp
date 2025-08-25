@@ -83,18 +83,18 @@ void UComponentWallHug::WallHug()
 		end -= result.ImpactNormal * 50;
 		end += result.ImpactNormal.Rotation().RotateVector({0, 1, 0}) * width;
 		UKismetSystemLibrary::LineTraceSingle(this->GetWorld(), start, end, ETraceTypeQuery::TraceTypeQuery_MAX, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, unusedResult, false, FLinearColor::Blue, FLinearColor::Blue);
-		if(this->GetWorld()->LineTraceSingleByObjectType(unusedResult, start, end, UComponentWallHug::TraceObjects, UComponentWallHug::ActorsToIgnores))
+		if (this->GetWorld()->LineTraceSingleByObjectType(unusedResult, start, end, UComponentWallHug::TraceObjects, UComponentWallHug::ActorsToIgnores))
 		{
 			goto setup_hugging_wall;
 		}
 		end += result.ImpactNormal.Rotation().RotateVector({0, -1, 0}) * 2 * width;
 		UKismetSystemLibrary::LineTraceSingle(this->GetWorld(), start, end, ETraceTypeQuery::TraceTypeQuery_MAX, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, unusedResult, false, FLinearColor::Blue, FLinearColor::Blue);
-		if(!this->GetWorld()->LineTraceSingleByObjectType(unusedResult, start, end, UComponentWallHug::TraceObjects, UComponentWallHug::ActorsToIgnores))
+		if (!this->GetWorld()->LineTraceSingleByObjectType(unusedResult, start, end, UComponentWallHug::TraceObjects, UComponentWallHug::ActorsToIgnores))
 		{
 			return;
 		}
-		
-setup_hugging_wall:
+
+	setup_hugging_wall:
 		result.ImpactPoint.Z = this->MyOwner->GetActorLocation().Z;
 		this->MyOwner->SetActorLocationAndRotation(
 			result.ImpactPoint,
@@ -131,8 +131,8 @@ setup_hugging_wall:
 void UComponentWallHug::WallHugMovement(bool IsMovingLeft)
 {
 	FVector start = this->MyOwner->GetActorLocation();
-	start += this->MyOwner->GetActorRotation().RotateVector({0.0f, (IsMovingLeft ? 1.0f : -1.0f), 0.0f}) * 50;
-	FVector end = start + (-this->MyOwner->GetActorRotation().Vector()) * 100.0f;
+	start += this->MyOwner->GetActorRotation().RotateVector({0.0f, (IsMovingLeft ? 1.0f : -1.0f), 0.0f}) * 28;
+	FVector end = start + (-this->MyOwner->GetActorRotation().Vector()) * 75.0f;
 	FHitResult result;
 	// TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 	// ObjectTypes.AddUnique(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
@@ -145,6 +145,21 @@ void UComponentWallHug::WallHugMovement(bool IsMovingLeft)
 			UComponentWallHug::ActorsToIgnores))
 	{
 		this->MyOwner->AddMovementInput(this->MyOwner->GetActorRotation().RotateVector({0.0f, (IsMovingLeft ? 1.0f : -1.0f), 0.0f}), 1.0f);
+		this->MyOwner->SetActorRotation(
+			UKismetMathLibrary::RInterpTo(
+				this->MyOwner->GetActorRotation(),
+				result.Normal.Rotation(),
+				this->GetWorld()->GetDeltaSeconds(),
+				5));
+		// if (this->GetWorld()->LineTraceSingleByObjectType(
+		// 		result,
+		// 		start,
+		// 		end,
+		// 		UComponentWallHug::TraceObjects,
+		// 		UComponentWallHug::ActorsToIgnores))
+		// {
+		// 	this->MyOwner->SetActorRotation(result.Normal.Rotation());
+		// }
 	}
 	else
 	{
