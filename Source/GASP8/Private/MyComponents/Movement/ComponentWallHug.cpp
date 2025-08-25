@@ -145,12 +145,15 @@ void UComponentWallHug::WallHugMovement(bool IsMovingLeft)
 			UComponentWallHug::ActorsToIgnores))
 	{
 		this->MyOwner->AddMovementInput(this->MyOwner->GetActorRotation().RotateVector({0.0f, (IsMovingLeft ? 1.0f : -1.0f), 0.0f}), 1.0f);
-		this->MyOwner->SetActorRotation(
+		this->MyOwner->SetActorLocationAndRotation(
+			result.ImpactPoint,
 			UKismetMathLibrary::RInterpTo(
 				this->MyOwner->GetActorRotation(),
 				result.Normal.Rotation(),
 				this->GetWorld()->GetDeltaSeconds(),
-				5));
+				5),
+			true
+		);
 		// if (this->GetWorld()->LineTraceSingleByObjectType(
 		// 		result,
 		// 		start,
