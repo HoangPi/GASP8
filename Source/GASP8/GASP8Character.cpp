@@ -12,6 +12,7 @@
 #include "InputActionValue.h"
 
 #include "MyComponents/Movement/ComponentSprint.h"
+#include "MyComponents/Movement/ComponentWallHug.h"
 #include "MyComponents/Combat/Lockon/ComponentLockon.h"
 #include "MyComponents/Combat/Guard/ComponentGuard.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -65,14 +66,14 @@ AGASP8Character::AGASP8Character()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character)
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
-	// #region SetUpDefaultProperties 
+	// #region SetUpDefaultProperties
 	// #tag Animation_state
 	this->IsGuarding = false;
 	this->GuardWeight = 0.0f;
-	
+
 	AGASP8Character::DisableMovementTags.AddTag(Tags::PlayerState::on_air);
 	AGASP8Character::DisableMovementTags.AddTag(Tags::PlayerState::disabled);
-	
+
 	// #tag Ability_System_Component
 	this->AbilitySystemComponent = this->CreateDefaultSubobject<UAbilitySystemComponent>(FName("MCAbilitySystemComponent"));
 	// #tag Components
@@ -129,7 +130,7 @@ void AGASP8Character::Move(const FInputActionValue &Value)
 	{
 		return;
 	}
-	if(this->AbilitySystemComponent->HasMatchingGameplayTag(Tags::PlayerState::on_air))
+	if (this->AbilitySystemComponent->HasMatchingGameplayTag(Tags::PlayerState::on_air))
 	{
 		AddMovementInput(this->GetActorRotation().Vector(), 1);
 		return;
@@ -148,11 +149,33 @@ void AGASP8Character::Move(const FInputActionValue &Value)
 		// get right vector
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-		// add movement
-		AddMovementInput(ForwardDirection, MovementVector.Y);
-		AddMovementInput(RightDirection, MovementVector.X);
+		// #tag Hugging_Wall
+		if (this->MyWallHugComponent->IsHuggingWall)
+		{
+			// I dont even understand the math behind this, just pure chatgtp and trial and error
+			// I dont even want to opt this thing (well, not that there is much to do)
+			FRotator cameraRotation(0, this->GetFollowCamera()->GetComponentRotation().Yaw, 0);
+			FRotator actorRotation = this->GetActorRotation();
 
-		// Update movement information
+			// double dotProduct1 = FVector::DotProduct(cameraRotation.Vector(), actorRotation.Vector());
+			FVector MovementVector3d(MovementVector.X, MovementVector.Y, 0);
+			MovementVector3d = MovementVector3d.Rotation().RotateVector(actorRotation.Vector());
+			double dotProduct2 = FVector::DotProduct(MovementVector3d, cameraRotation.Vector());
+			// this->MyWallHugComponent->WallHugMovement(
+			// 	dotProduct1 > 0
+			// 		? dotProduct2 < 0
+			// 		: dotProduct2 > 0
+			// );
+			this->MyWallHugComponent->WallHugMovement(dotProduct2 > 0);
+		}
+		else
+		{
+			// add movement
+			AddMovementInput(ForwardDirection, MovementVector.Y);
+			AddMovementInput(RightDirection, MovementVector.X);
+		}
+
+		// #tag Update_Movement_Information
 		this->Velocity = this->GetCharacterMovement()->Velocity;
 		this->GroundSpeed = FVector(Velocity.X, Velocity.Y, 0).Length();
 
@@ -226,6 +249,7 @@ void AGASP8Character::Tick(float DeltaSeconds)
 void AGASP8Character::SetupMyComponents()
 {
 	this->CreateDefaultSubobject<UComponentSprint>(FName("MovementComponent"));
+	this->MyWallHugComponent = this->CreateDefaultSubobject<UComponentWallHug>(FName("WallHugComponent"));
 	UComponentGuard *tempGuardComponent = this->CreateDefaultSubobject<UComponentGuard>(FName("MyGuardComponent"));
 	UAttributeHealth *healthAttribute = this->CreateDefaultSubobject<UAttributeHealth>(FName("HealthAttribute"));
 	this->MyLockonComponent = this->CreateDefaultSubobject<UComponentLockon>(FName("LockonComponent"));
@@ -262,4 +286,8 @@ void AGASP8Character::StopMoving()
 	this->ShouldMove = false;
 	this->NotifyShouldMoveChange.Broadcast(false);
 	this->AbilitySystemComponent->RemoveLooseGameplayTag(Tags::PlayerState::should_move);
+	if(this->MyWallHugComponent->IsHuggingWall)
+	{
+		this->MyWallHugComponent->ResetCamera();
+	}
 }
