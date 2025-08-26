@@ -7,7 +7,7 @@
 #include "GASP8/GASP8Character.h"
 #include "Ultilities/Macro.h"
 
-double UComponentWallHug::CameraPeekSpeed = 500.0f;
+double UComponentWallHug::CameraPeekSpeed = 5.0f;
 double UComponentWallHug::CameraMaxPeekDistance = 50.0f;
 FCollisionObjectQueryParams UComponentWallHug::TraceObjects;
 FCollisionQueryParams UComponentWallHug::ActorsToIgnores;
@@ -23,6 +23,7 @@ UComponentWallHug::UComponentWallHug()
 	this->InteractAction = LoadObject<UInputAction>(nullptr, TEXT("/Game/ThirdPerson/Input/Actions/IA_Interact.IA_Interact"));
 	this->MyOwner = Cast<AGASP8Character>(this->GetOwner());
 	this->IsHuggingWall = false;
+	this->PeekState = PeekDirection::NONE;
 	// UComponentWallHug::TraceObjects.AddObjectTypesToQuery(ECollisionChannel::ECC_WorldStatic);
 }
 
@@ -37,6 +38,7 @@ void UComponentWallHug::BeginPlay()
 		input->BindAction(this->InteractAction, ETriggerEvent::Started, this, &UComponentWallHug::WallHug);
 	}
 	// Dont want to add non-player/CDO objects
+	this->OriginCameraLength = this->MyOwner->GetCameraBoom()->TargetArmLength;
 	UComponentWallHug::ActorsToIgnores.AddIgnoredActor(this->GetOwner());
 }
 
@@ -95,6 +97,7 @@ void UComponentWallHug::WallHug()
 		}
 
 	setup_hugging_wall:
+		this->ZoomIn(this->MyOwner->GetCameraBoom());
 		result.ImpactPoint.Z = this->MyOwner->GetActorLocation().Z;
 		this->MyOwner->SetActorLocationAndRotation(
 			result.ImpactPoint,
@@ -159,8 +162,7 @@ void UComponentWallHug::WallHugMovement(bool IsMovingLeft)
 				UComponentWallHug::ActorsToIgnores))
 		{
 			this->MyOwner->SetActorRotation(
-				FRotator(0.0f, UKismetMathLibrary::FInterpTo(actorRotation.Yaw, result.ImpactNormal.Rotation().Yaw, this->GetWorld()->GetDeltaSeconds(), 5), 0.0f)
-			);
+				FRotator(0.0f, UKismetMathLibrary::FInterpTo(actorRotation.Yaw, result.ImpactNormal.Rotation().Yaw, this->GetWorld()->GetDeltaSeconds(), 5), 0.0f));
 		}
 	}
 	else
@@ -204,12 +206,41 @@ void UComponentWallHug::ResetCamera()
 															{ this->ResetCamera(); });
 }
 
+void UComponentWallHug::ZoomIn(USpringArmComponent *SpringArm, double time)
+{
+	time += this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
+	if (time >= 1)
+	{
+		SpringArm->TargetArmLength = this->OriginCameraLength - UComponentWallHug::CameraMaxOffSetY;
+		return;
+	}
+	SpringArm->TargetArmLength = this->OriginCameraLength - UKismetMathLibrary::FInterpEaseInOut(0, UComponentWallHug::CameraMaxOffSetY, time, 2);
+	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, SpringArm, time]()
+															{ this->ZoomIn(SpringArm, time); });
+}
+
+void UComponentWallHug::ZoomOut(USpringArmComponent *SpringArm, double time)
+{
+	time += this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, FString::Printf(TEXT("%f"), time));
+	if (time >= 1)
+	{
+		SpringArm->TargetArmLength = this->OriginCameraLength;
+		return;
+	}
+	SpringArm->TargetArmLength = this->OriginCameraLength - UKismetMathLibrary::FInterpEaseInOut(UComponentWallHug::CameraMaxOffSetY, 0, time, 2);
+	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, SpringArm, time]()
+															{ this->ZoomOut(SpringArm, time); });
+}
+
+
 void UComponentWallHug::UpdateIsHuggingWall(bool state)
 {
 	this->IsHuggingWall = state;
 	this->MyOwner->GetCharacterMovement()->bOrientRotationToMovement = !state;
 	if (!state)
 	{
-		this->ResetCamera();
+		this->ZoomOut(this->MyOwner->GetCameraBoom());
+		// this->ResetCamera();
 	}
 }
