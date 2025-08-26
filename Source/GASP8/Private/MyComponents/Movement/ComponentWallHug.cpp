@@ -108,16 +108,16 @@ void UComponentWallHug::WallHug()
 	}
 }
 
-void UComponentWallHug::WallHugMovement(bool IsMovingLeft)
+void UComponentWallHug::WallHugMovement(bool IsMovingRight)
 {
 	constexpr double AngluarCheck = 135.0f;
 	FVector start = this->MyOwner->GetActorLocation();
 	FRotator actorRotation = this->MyOwner->GetActorRotation();
 	FRotator rotateCopy = actorRotation;
-	rotateCopy.Yaw += (IsMovingLeft ? AngluarCheck : -AngluarCheck);
+	rotateCopy.Yaw += (IsMovingRight ? AngluarCheck : -AngluarCheck);
 	start += rotateCopy.Vector() * 25;
 	FVector end = start + rotateCopy.Vector() * 100;
-	// start += this->MyOwner->GetActorRotation().RotateVector({0.0f, (IsMovingLeft ? 1.0f : -1.0f), 0.0f}) * 28;
+	// start += this->MyOwner->GetActorRotation().RotateVector({0.0f, (IsMovingRight ? 1.0f : -1.0f), 0.0f}) * 28;
 	// FVector end = start + (-this->MyOwner->GetActorRotation().Vector()) * 75.0f;
 	FHitResult result;
 	// TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
@@ -130,7 +130,7 @@ void UComponentWallHug::WallHugMovement(bool IsMovingLeft)
 			UComponentWallHug::TraceObjects,
 			UComponentWallHug::ActorsToIgnores))
 	{
-		this->MyOwner->AddMovementInput(actorRotation.RotateVector({0.0f, (IsMovingLeft ? 1.0f : -1.0f), 0.0f}), 1.0f);
+		this->MyOwner->AddMovementInput(actorRotation.RotateVector({0.0f, (IsMovingRight ? 1.0f : -1.0f), 0.0f}), 1.0f);
 		this->MyOwner->AddMovementInput(actorRotation.RotateVector(FVector::BackwardVector), 0.5f);
 		if (this->GetWorld()->LineTraceSingleByObjectType(
 				result,
@@ -144,10 +144,11 @@ void UComponentWallHug::WallHugMovement(bool IsMovingLeft)
 	}
 	else
 	{
-		auto origin = this->MyOwner->GetFollowCamera()->GetRelativeLocation();
-		origin.Y = origin.Y + (IsMovingLeft ? -1.0f : 1.0f) * this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
-		origin.Y = CLAMP(origin.Y, -UComponentWallHug::CameraMaxPeekDistance, UComponentWallHug::CameraMaxPeekDistance);
-		this->MyOwner->GetFollowCamera()->SetRelativeLocation(origin);
+		this->Peek(this->MyOwner->GetFollowCamera(), (IsMovingRight ? PeekDirection::RIGHT : PeekDirection::LEFT));
+		// auto origin = this->MyOwner->GetFollowCamera()->GetRelativeLocation();
+		// origin.Y = origin.Y + (IsMovingRight ? -1.0f : 1.0f) * this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
+		// origin.Y = CLAMP(origin.Y, -UComponentWallHug::CameraMaxPeekDistance, UComponentWallHug::CameraMaxPeekDistance);
+		// this->MyOwner->GetFollowCamera()->SetRelativeLocation(origin);
 	}
 }
 

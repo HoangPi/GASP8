@@ -42,11 +42,12 @@ public:
 	PeekDirection PeekState;
 
 	void WallHug();
-	void WallHugMovement(bool IsMovingLeft = true);
+	void WallHugMovement(bool IsMovingRight = true);
 	void ResetCamera();
 	void UpdateIsHuggingWall(bool state);
 	void ZoomIn(USpringArmComponent *SpringArm, double time = 0.0f);
 	void ZoomOut(USpringArmComponent *SpringArm, double time = 0.0f);
+	void Peek(UCameraComponent *FollowCamera, PeekDirection Direction, double time = 0.0f);
 
 
 protected:
