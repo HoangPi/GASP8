@@ -30,7 +30,7 @@ public:
 	void WallHugMovement(bool IsMovingLeft = true);
 	class AGASP8Character *MyOwner;
 	void ResetCamera();
-	inline void UpdateIsHuggingWall(bool state);
+	void UpdateIsHuggingWall(bool state);
 
 	static double CameraPeekSpeed;
 	static double CameraMaxPeekDistance;

@@ -107,8 +107,8 @@ void AGASP8Character::SetupPlayerInputComponent(UInputComponent *PlayerInputComp
 	{
 
 		// Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AGASP8Character::Jump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AGASP8Character::StopJumping);
 
 		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AGASP8Character::Move);
@@ -290,4 +290,10 @@ void AGASP8Character::StopMoving()
 	{
 		this->MyWallHugComponent->ResetCamera();
 	}
+}
+
+void AGASP8Character::Jump()
+{
+	Super::Jump();
+	this->MyWallHugComponent->UpdateIsHuggingWall(false);
 }

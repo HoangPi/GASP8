@@ -73,6 +73,7 @@ public:
 	inline void SetupMyComponents();
 
 	void Tick(float DeltaSeconds);
+	void Jump() override;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	bool ShouldMove;
