@@ -106,29 +106,6 @@ void UComponentWallHug::WallHug()
 		this->UpdateIsHuggingWall(true);
 		// this->MyOwner->GetCharacterMovement()->bOrientRotationToMovement = false;
 	}
-	// if (UKismetSystemLibrary::LineTraceSingleForObjects(
-	// 		this->GetWorld(),
-	// 		start,
-	// 		end,
-	// 		ObjectTypes,
-	// 		false,
-	// 		ActorsToIgnore,
-	// 		EDrawDebugTrace::ForDuration,
-	// 		result,
-	// 		true,
-	// 		FLinearColor::Red,
-	// 		FLinearColor::Green,
-	// 		5.0f))
-	// {
-	// 	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, result.GetActor()->GetName());
-	// 	result.ImpactPoint.Z = this->GetOwner()->GetActorLocation().Z;
-	// 	this->GetOwner()->SetActorLocationAndRotation(
-	// 		result.ImpactPoint,
-	// 		result.ImpactNormal.Rotation(),
-	// 		true);
-	// 	this->UpdateIsHuggingWall(true);
-	// 	this->MyOwner->GetCharacterMovement()->bOrientRotationToMovement = false;
-	// }
 }
 
 void UComponentWallHug::WallHugMovement(bool IsMovingLeft)
@@ -172,18 +149,6 @@ void UComponentWallHug::WallHugMovement(bool IsMovingLeft)
 		origin.Y = CLAMP(origin.Y, -UComponentWallHug::CameraMaxPeekDistance, UComponentWallHug::CameraMaxPeekDistance);
 		this->MyOwner->GetFollowCamera()->SetRelativeLocation(origin);
 	}
-	// UKismetSystemLibrary::LineTraceSingleForObjects(this->GetWorld(),
-	// 												start,
-	// 												end,
-	// 												ObjectTypes,
-	// 												false,
-	// 												ActorsToIgnore,
-	// 												EDrawDebugTrace::ForDuration,
-	// 												result,
-	// 												true,
-	// 												FLinearColor::Red,
-	// 												FLinearColor::Green,
-	// 												5.0f);
 }
 
 void UComponentWallHug::ResetCamera()
