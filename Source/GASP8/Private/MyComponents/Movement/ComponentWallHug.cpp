@@ -130,9 +130,15 @@ void UComponentWallHug::WallHug()
 
 void UComponentWallHug::WallHugMovement(bool IsMovingLeft)
 {
+	constexpr double AngluarCheck = 135.0f;
 	FVector start = this->MyOwner->GetActorLocation();
-	start += this->MyOwner->GetActorRotation().RotateVector({0.0f, (IsMovingLeft ? 1.0f : -1.0f), 0.0f}) * 28;
-	FVector end = start + (-this->MyOwner->GetActorRotation().Vector()) * 75.0f;
+	FRotator actorRotation = this->MyOwner->GetActorRotation();
+	FRotator rotateCopy = actorRotation;
+	rotateCopy.Yaw += (IsMovingLeft ? AngluarCheck : -AngluarCheck);
+	start += rotateCopy.Vector() * 25;
+	FVector end = start + rotateCopy.Vector() * 100;
+	// start += this->MyOwner->GetActorRotation().RotateVector({0.0f, (IsMovingLeft ? 1.0f : -1.0f), 0.0f}) * 28;
+	// FVector end = start + (-this->MyOwner->GetActorRotation().Vector()) * 75.0f;
 	FHitResult result;
 	// TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 	// ObjectTypes.AddUnique(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
@@ -144,25 +150,18 @@ void UComponentWallHug::WallHugMovement(bool IsMovingLeft)
 			UComponentWallHug::TraceObjects,
 			UComponentWallHug::ActorsToIgnores))
 	{
-		this->MyOwner->AddMovementInput(this->MyOwner->GetActorRotation().RotateVector({0.0f, (IsMovingLeft ? 1.0f : -1.0f), 0.0f}), 1.0f);
-		this->MyOwner->SetActorLocationAndRotation(
-			result.ImpactPoint,
-			UKismetMathLibrary::RInterpTo(
-				this->MyOwner->GetActorRotation(),
-				result.Normal.Rotation(),
-				this->GetWorld()->GetDeltaSeconds(),
-				5),
-			true
-		);
-		// if (this->GetWorld()->LineTraceSingleByObjectType(
-		// 		result,
-		// 		start,
-		// 		end,
-		// 		UComponentWallHug::TraceObjects,
-		// 		UComponentWallHug::ActorsToIgnores))
-		// {
-		// 	this->MyOwner->SetActorRotation(result.Normal.Rotation());
-		// }
+		this->MyOwner->AddMovementInput(actorRotation.RotateVector({0.0f, (IsMovingLeft ? 1.0f : -1.0f), 0.0f}), 1.0f);
+		this->MyOwner->AddMovementInput(actorRotation.RotateVector(FVector::BackwardVector), 0.5f);
+		if (this->GetWorld()->LineTraceSingleByObjectType(
+				result,
+				start, start + actorRotation.RotateVector(FVector::BackwardVector) * 100,
+				UComponentWallHug::TraceObjects,
+				UComponentWallHug::ActorsToIgnores))
+		{
+			this->MyOwner->SetActorRotation(
+				FRotator(0.0f, UKismetMathLibrary::FInterpTo(actorRotation.Yaw, result.ImpactNormal.Rotation().Yaw, this->GetWorld()->GetDeltaSeconds(), 5), 0.0f)
+			);
+		}
 	}
 	else
 	{
@@ -171,28 +170,18 @@ void UComponentWallHug::WallHugMovement(bool IsMovingLeft)
 		origin.Y = CLAMP(origin.Y, -UComponentWallHug::CameraMaxPeekDistance, UComponentWallHug::CameraMaxPeekDistance);
 		this->MyOwner->GetFollowCamera()->SetRelativeLocation(origin);
 	}
-	// if (UKismetSystemLibrary::LineTraceSingleForObjects(this->GetWorld(),
-	// 													start,
-	// 													end,
-	// 													ObjectTypes,
-	// 													false,
-	// 													ActorsToIgnore,
-	// 													EDrawDebugTrace::ForDuration,
-	// 													result,
-	// 													true,
-	// 													FLinearColor::Red,
-	// 													FLinearColor::Green,
-	// 													5.0f))
-	// {
-	// 	this->MyOwner->AddMovementInput(this->MyOwner->GetActorRotation().RotateVector({0.0f, (IsMovingLeft ? 1.0f : -1.0f), 0.0f}), 1.0f);
-	// }
-	// else
-	// {
-	// 	auto origin = this->MyOwner->GetFollowCamera()->GetRelativeLocation();
-	// 	origin.Y = origin.Y + (IsMovingLeft ? -1.0f : 1.0f) * this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
-	// 	origin.Y = CLAMP(origin.Y, -UComponentWallHug::CameraMaxPeekDistance, UComponentWallHug::CameraMaxPeekDistance);
-	// 	this->MyOwner->GetFollowCamera()->SetRelativeLocation(origin);
-	// }
+	// UKismetSystemLibrary::LineTraceSingleForObjects(this->GetWorld(),
+	// 												start,
+	// 												end,
+	// 												ObjectTypes,
+	// 												false,
+	// 												ActorsToIgnore,
+	// 												EDrawDebugTrace::ForDuration,
+	// 												result,
+	// 												true,
+	// 												FLinearColor::Red,
+	// 												FLinearColor::Green,
+	// 												5.0f);
 }
 
 void UComponentWallHug::ResetCamera()
