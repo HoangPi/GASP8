@@ -26,7 +26,7 @@ public:
 	// When you modify this bool, do perform this side effect ResetCamera
 	bool IsHuggingWall = false;
 	double OriginCameraLength;
-	const double CameraMaxOffSetX = 50.0f;
+	const double CameraMaxOffSetX = 100.0f;
 	const double CameraMaxOffSetY = 100.0f;
 	class AGASP8Character *MyOwner;
 	static double CameraPeekSpeed;
@@ -35,9 +35,9 @@ public:
 	static FCollisionQueryParams ActorsToIgnores;
 	enum PeekDirection : uint8
 	{
-		NONE,
-		LEFT,
-		RIGHT
+		NONE = 0,
+		LEFT = 1,
+		RIGHT = 2
 	};
 	PeekDirection PeekState;
 
@@ -48,6 +48,8 @@ public:
 	void ZoomIn(USpringArmComponent *SpringArm, double time = 0.0f);
 	void ZoomOut(USpringArmComponent *SpringArm, double time = 0.0f);
 	void Peek(UCameraComponent *FollowCamera, PeekDirection Direction, double time = 0.0f);
+	void UnPeek(UCameraComponent *FollowCamera, PeekDirection Direction, double time = 0.0f);
+	void HandlePeekLook(FVector2d LookAxisVector);
 
 
 protected:

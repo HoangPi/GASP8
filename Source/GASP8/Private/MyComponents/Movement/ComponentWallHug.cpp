@@ -110,6 +110,15 @@ void UComponentWallHug::WallHug()
 
 void UComponentWallHug::WallHugMovement(bool IsMovingRight)
 {
+	if (this->PeekState != PeekDirection::NONE)
+	{
+		if ((IsMovingRight && this->PeekState == PeekDirection::RIGHT) || (!IsMovingRight && this->PeekState == PeekDirection::LEFT))
+		{
+			return;
+		}
+		this->UnPeek(this->MyOwner->GetFollowCamera(), this->PeekState);
+		this->PeekState = NONE;
+	}
 	constexpr double AngluarCheck = 135.0f;
 	FVector start = this->MyOwner->GetActorLocation();
 	FRotator actorRotation = this->MyOwner->GetActorRotation();
@@ -144,7 +153,9 @@ void UComponentWallHug::WallHugMovement(bool IsMovingRight)
 	}
 	else
 	{
-		this->Peek(this->MyOwner->GetFollowCamera(), (IsMovingRight ? PeekDirection::RIGHT : PeekDirection::LEFT));
+		PeekDirection temp = (IsMovingRight ? PeekDirection::RIGHT : PeekDirection::LEFT);
+		this->PeekState = temp;
+		this->Peek(this->MyOwner->GetFollowCamera(), temp);
 		// auto origin = this->MyOwner->GetFollowCamera()->GetRelativeLocation();
 		// origin.Y = origin.Y + (IsMovingRight ? -1.0f : 1.0f) * this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
 		// origin.Y = CLAMP(origin.Y, -UComponentWallHug::CameraMaxPeekDistance, UComponentWallHug::CameraMaxPeekDistance);
@@ -188,7 +199,6 @@ void UComponentWallHug::ZoomIn(USpringArmComponent *SpringArm, double time)
 void UComponentWallHug::ZoomOut(USpringArmComponent *SpringArm, double time)
 {
 	time += this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, FString::Printf(TEXT("%f"), time));
 	if (time >= 1)
 	{
 		SpringArm->TargetArmLength = this->OriginCameraLength;
@@ -199,6 +209,43 @@ void UComponentWallHug::ZoomOut(USpringArmComponent *SpringArm, double time)
 															{ this->ZoomOut(SpringArm, time); });
 }
 
+void UComponentWallHug::Peek(UCameraComponent *FollowCamera, PeekDirection Direction, double time)
+{
+	time += this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
+	double target = Direction == PeekDirection::LEFT ? UComponentWallHug::CameraMaxOffSetX : -UComponentWallHug::CameraMaxOffSetX;
+	if (time >= 1)
+	{
+		FollowCamera->SetRelativeLocation(FVector{0.0f, target, 0.0f});
+		return;
+	}
+	FollowCamera->SetRelativeLocation(FVector{
+		0.0f,
+		UKismetMathLibrary::FInterpEaseInOut(0, target, time, 2),
+		0.0f});
+	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, FollowCamera, Direction, time]()
+															{ this->Peek(FollowCamera, Direction, time); });
+}
+void UComponentWallHug::UnPeek(UCameraComponent *FollowCamera, PeekDirection Direction, double time)
+{
+	time += this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
+	double target = (Direction == PeekDirection::LEFT ? UComponentWallHug::CameraMaxOffSetX : -UComponentWallHug::CameraMaxOffSetX);
+	if (time >= 1)
+	{
+		FollowCamera->SetRelativeLocation(FVector{0.0f});
+		return;
+	}
+	FollowCamera->SetRelativeLocation(FVector{
+		0.0f,
+		UKismetMathLibrary::FInterpEaseInOut(target, 0, time, 2),
+		0.0f});
+	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, FollowCamera, Direction, time]()
+															{ this->UnPeek(FollowCamera, Direction, time); });
+}
+
+void UComponentWallHug::HandlePeekLook(FVector2d LookAxisVector)
+{
+
+}
 
 void UComponentWallHug::UpdateIsHuggingWall(bool state)
 {
@@ -207,6 +254,11 @@ void UComponentWallHug::UpdateIsHuggingWall(bool state)
 	if (!state)
 	{
 		this->ZoomOut(this->MyOwner->GetCameraBoom());
+		if(this->PeekState != PeekDirection::NONE)
+		{
+			this->UnPeek(this->MyOwner->GetFollowCamera(), this->PeekState);
+			this->PeekState = PeekDirection::NONE;
+		}
 		// this->ResetCamera();
 	}
 }
