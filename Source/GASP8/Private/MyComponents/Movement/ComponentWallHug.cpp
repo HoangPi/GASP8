@@ -244,7 +244,26 @@ void UComponentWallHug::UnPeek(UCameraComponent *FollowCamera, PeekDirection Dir
 
 void UComponentWallHug::HandlePeekLook(FVector2d LookAxisVector)
 {
-
+	FVector controllerRotation = this->MyOwner->GetControlRotation().Vector();
+	FVector forwardVector = this->MyOwner->GetActorForwardVector();
+	FVector rightVector = this->MyOwner->GetActorRotation().RotateVector(FVector::RightVector);
+	MyOwner->AddControllerYawInput(LookAxisVector.X);
+	MyOwner->AddControllerPitchInput(LookAxisVector.Y);
+	if (FVector::DotProduct(forwardVector, controllerRotation) > 0)
+	{
+		if (FVector::DotProduct(controllerRotation, rightVector) > 0)
+		{
+			FRotator newRot = this->MyOwner->GetController()->GetControlRotation();
+			newRot.Yaw = rightVector.Rotation().Yaw;
+			this->MyOwner->GetController()->SetControlRotation(newRot);
+		}
+		else
+		{
+			FRotator newRot = this->MyOwner->GetController()->GetControlRotation();
+			newRot.Yaw = (-rightVector).Rotation().Yaw;
+			this->MyOwner->GetController()->SetControlRotation(newRot);
+		}
+	}
 }
 
 void UComponentWallHug::UpdateIsHuggingWall(bool state)
@@ -254,7 +273,7 @@ void UComponentWallHug::UpdateIsHuggingWall(bool state)
 	if (!state)
 	{
 		this->ZoomOut(this->MyOwner->GetCameraBoom());
-		if(this->PeekState != PeekDirection::NONE)
+		if (this->PeekState != PeekDirection::NONE)
 		{
 			this->UnPeek(this->MyOwner->GetFollowCamera(), this->PeekState);
 			this->PeekState = PeekDirection::NONE;

@@ -21,6 +21,7 @@
 #include "MyAbilities/Combat/Guard/AbilityGuard.h"
 #include "Ultilities/TeamEnum.h"
 #include "Ultilities/GobalVars.h"
+#include "Ultilities/Macro.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -211,6 +212,11 @@ void AGASP8Character::Look(const FInputActionValue &Value)
 
 	if (Controller != nullptr)
 	{
+		if (this->MyWallHugComponent->IsHuggingWall)
+		{
+			this->MyWallHugComponent->HandlePeekLook(LookAxisVector);
+			return;
+		}
 		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
@@ -286,10 +292,10 @@ void AGASP8Character::StopMoving()
 	this->ShouldMove = false;
 	this->NotifyShouldMoveChange.Broadcast(false);
 	this->AbilitySystemComponent->RemoveLooseGameplayTag(Tags::PlayerState::should_move);
-	if(this->MyWallHugComponent->IsHuggingWall)
-	{
-		this->MyWallHugComponent->ResetCamera();
-	}
+	// if(this->MyWallHugComponent->IsHuggingWall)
+	// {
+	// 	this->MyWallHugComponent->ResetCamera();
+	// }
 }
 
 void AGASP8Character::Jump()
