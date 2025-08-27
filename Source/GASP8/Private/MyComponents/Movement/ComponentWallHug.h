@@ -47,7 +47,7 @@ public:
 	void UpdateIsHuggingWall(bool state);
 	void ZoomIn(USpringArmComponent *SpringArm, double time = 0.0f);
 	void ZoomOut(USpringArmComponent *SpringArm, double time = 0.0f);
-	void Peek(UCameraComponent *FollowCamera, PeekDirection Direction, double time = 0.0f);
+	void Peek(UCameraComponent *FollowCamera, AController *Controller, FRotator InitControlRotation, PeekDirection Direction, double time = 0.0f);
 	void UnPeek(UCameraComponent *FollowCamera, PeekDirection Direction, double time = 0.0f);
 	void HandlePeekLook(FVector2d LookAxisVector);
 
