@@ -116,7 +116,14 @@ void UComponentWallHug::WallHugMovement(bool IsMovingRight)
 		{
 			return;
 		}
-		this->UnPeek(this->MyOwner->GetFollowCamera(), this->PeekState);
+		AController *controller = this->MyOwner->GetController();
+		FRotator rot = controller->GetControlRotation();
+		this->UnPeek(
+			controller,
+			rot,
+			UKismetMathLibrary::NormalizedDeltaRotator(
+				this->MyOwner->GetActorRotation().RotateVector(FVector::BackwardVector).Rotation(),
+				rot));
 		this->PeekState = NONE;
 	}
 	constexpr double AngluarCheck = 135.0f;
@@ -156,8 +163,7 @@ void UComponentWallHug::WallHugMovement(bool IsMovingRight)
 		AController *controller = this->MyOwner->GetController();
 		FRotator DeltaControlRotation = UKismetMathLibrary::NormalizedDeltaRotator(
 			this->MyOwner->GetActorRotation().RotateVector({0, IsMovingRight ? -1.0f : 1.0f, 0}).Rotation(),
-			controller->GetControlRotation()
-		);
+			controller->GetControlRotation());
 		// DeltaControlRotation.Pitch = 0.0f;
 		this->PeekState = (IsMovingRight ? PeekDirection::RIGHT : PeekDirection::LEFT);
 		this->Peek(controller, controller->GetControlRotation(), DeltaControlRotation.Yaw);
@@ -230,25 +236,26 @@ void UComponentWallHug::Peek(AController *Controller, FRotator InitControlRotati
 	double deltaYaw = UKismetMathLibrary::FInterpEaseInOut(0, DeltaControlYawRotation, time, 2);
 	currentRotation.Yaw += deltaYaw;
 	Controller->SetControlRotation(currentRotation);
-	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, Controller, InitControlRotation, DeltaControlYawRotation, time](){
-		this->Peek(Controller, InitControlRotation, DeltaControlYawRotation, time);
-	});
+	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, Controller, InitControlRotation, DeltaControlYawRotation, time]()
+															{ this->Peek(Controller, InitControlRotation, DeltaControlYawRotation, time); });
 }
-void UComponentWallHug::UnPeek(UCameraComponent *FollowCamera, PeekDirection Direction, double time)
+void UComponentWallHug::UnPeek(AController *Controller, FRotator InitControlRotation, FRotator DeltaControlRotation, double time)
 {
 	time += this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
 	double target = (Direction == PeekDirection::LEFT ? UComponentWallHug::CameraMaxOffSetX : -UComponentWallHug::CameraMaxOffSetX);
 	if (time >= 1)
 	{
-		FollowCamera->SetRelativeLocation(FVector{0.0f});
+		InitControlRotation.Add(DeltaControlRotation.Pitch, DeltaControlRotation.Yaw, 0.0f);
+		Controller->SetControlRotation(InitControlRotation);
 		return;
 	}
-	FollowCamera->SetRelativeLocation(FVector{
-		0.0f,
-		UKismetMathLibrary::FInterpEaseInOut(target, 0, time, 2),
-		0.0f});
-	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, FollowCamera, Direction, time]()
-															{ this->UnPeek(FollowCamera, Direction, time); });
+	double deltaPitchhRotation = UKismetMathLibrary::FInterpEaseInOut(0, DeltaControlRotation.Pitch, time, 2);
+	double deltaYawRotation = UKismetMathLibrary::FInterpEaseInOut(0, DeltaControlRotation.Yaw, time, 2);
+	FRotator currentRotaion = InitControlRotation;
+	currentRotaion.Add(deltaPitchhRotation, deltaYawRotation, 0.0f);
+	Controller->SetControlRotation(currentRotaion);
+	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, Controller, InitControlRotation, DeltaControlRotation, time]()
+															{ this->UnPeek(Controller, InitControlRotation, DeltaControlRotation, time); });
 }
 
 void UComponentWallHug::HandlePeekLook(FVector2d LookAxisVector)
@@ -284,7 +291,14 @@ void UComponentWallHug::UpdateIsHuggingWall(bool state)
 		this->ZoomOut(this->MyOwner->GetCameraBoom());
 		if (this->PeekState != PeekDirection::NONE)
 		{
-			this->UnPeek(this->MyOwner->GetFollowCamera(), this->PeekState);
+			AController *controller = this->MyOwner->GetController();
+			FRotator rot = controller->GetControlRotation();
+			this->UnPeek(
+				controller,
+				rot,
+				UKismetMathLibrary::NormalizedDeltaRotator(
+					this->MyOwner->GetActorRotation().RotateVector(FVector::BackwardVector).Rotation(),
+					rot));
 			this->PeekState = PeekDirection::NONE;
 		}
 		// this->ResetCamera();
