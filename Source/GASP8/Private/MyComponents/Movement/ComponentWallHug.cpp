@@ -153,13 +153,14 @@ void UComponentWallHug::WallHugMovement(bool IsMovingRight)
 	}
 	else
 	{
-		PeekDirection temp = (IsMovingRight ? PeekDirection::RIGHT : PeekDirection::LEFT);
-		this->PeekState = temp;
-		this->Peek(this->MyOwner->GetFollowCamera(), this->MyOwner->GetController(), this->MyOwner->GetControlRotation(), temp);
-		// auto origin = this->MyOwner->GetFollowCamera()->GetRelativeLocation();
-		// origin.Y = origin.Y + (IsMovingRight ? -1.0f : 1.0f) * this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
-		// origin.Y = CLAMP(origin.Y, -UComponentWallHug::CameraMaxPeekDistance, UComponentWallHug::CameraMaxPeekDistance);
-		// this->MyOwner->GetFollowCamera()->SetRelativeLocation(origin);
+		AController *controller = this->MyOwner->GetController();
+		FRotator DeltaControlRotation = UKismetMathLibrary::NormalizedDeltaRotator(
+			this->MyOwner->GetActorRotation().RotateVector({0, IsMovingRight ? -1.0f : 1.0f, 0}).Rotation(),
+			controller->GetControlRotation()
+		);
+		// DeltaControlRotation.Pitch = 0.0f;
+		this->PeekState = (IsMovingRight ? PeekDirection::RIGHT : PeekDirection::LEFT);
+		this->Peek(controller, controller->GetControlRotation(), DeltaControlRotation.Yaw);
 	}
 }
 
@@ -209,7 +210,7 @@ void UComponentWallHug::ZoomOut(USpringArmComponent *SpringArm, double time)
 															{ this->ZoomOut(SpringArm, time); });
 }
 
-void UComponentWallHug::Peek(UCameraComponent *FollowCamera, AController *Controller, FRotator InitControlRotation, PeekDirection Direction, double time)
+void UComponentWallHug::Peek(AController *Controller, FRotator InitControlRotation, double DeltaControlYawRotation, double time)
 {
 	time += this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
 	double target = Direction == PeekDirection::LEFT ? UComponentWallHug::CameraMaxOffSetX : -UComponentWallHug::CameraMaxOffSetX;
@@ -221,17 +222,17 @@ void UComponentWallHug::Peek(UCameraComponent *FollowCamera, AController *Contro
 
 	if (time >= 1)
 	{
-		FollowCamera->SetRelativeLocation(FVector{0.0f, target, 0.0f});
-		Controller->SetControlRotation(FRotator(targetControlRotation));
+		InitControlRotation.Add(0, DeltaControlYawRotation, 0);
+		Controller->SetControlRotation(InitControlRotation);
 		return;
 	}
-	Controller->SetControlRotation(FRotator(InitControlRotation.Pitch + currentDeltaControlPitch, InitControlRotation.Yaw + currentDeltaControlYaw, 0));
-	FollowCamera->SetRelativeLocation(FVector{
-		0.0f,
-		UKismetMathLibrary::FInterpEaseInOut(0, target, time, 2),
-		0.0f});
-	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, FollowCamera, Direction, Controller, InitControlRotation, time]()
-															{ this->Peek(FollowCamera, Controller, InitControlRotation, Direction, time); });
+	FRotator currentRotation = InitControlRotation;
+	double deltaYaw = UKismetMathLibrary::FInterpEaseInOut(0, DeltaControlYawRotation, time, 2);
+	currentRotation.Yaw += deltaYaw;
+	Controller->SetControlRotation(currentRotation);
+	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, Controller, InitControlRotation, DeltaControlYawRotation, time](){
+		this->Peek(Controller, InitControlRotation, DeltaControlYawRotation, time);
+	});
 }
 void UComponentWallHug::UnPeek(UCameraComponent *FollowCamera, PeekDirection Direction, double time)
 {
