@@ -220,13 +220,6 @@ void UComponentWallHug::ZoomOut(USpringArmComponent *SpringArm, double time)
 void UComponentWallHug::Peek(AController *Controller, FRotator InitControlRotation, FRotator DeltaControlRotation, double time)
 {
 	time += this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
-	double target = Direction == PeekDirection::LEFT ? UComponentWallHug::CameraMaxOffSetX : -UComponentWallHug::CameraMaxOffSetX;
-	FRotator targetControlRotation = (-this->MyOwner->GetActorForwardVector()).Rotation();
-	double deltaRotationPitch = FRotator::NormalizeAxis(targetControlRotation.Pitch - InitControlRotation.Pitch);
-	double deltaRotationYaw = FRotator::NormalizeAxis(targetControlRotation.Yaw - InitControlRotation.Yaw);
-	double currentDeltaControlPitch = UKismetMathLibrary::FInterpEaseInOut(0, deltaRotationPitch, time, 2);
-	double currentDeltaControlYaw = UKismetMathLibrary::FInterpEaseInOut(0, deltaRotationYaw, time, 2);
-
 	if (time >= 1)
 	{
 		InitControlRotation.Add(DeltaControlRotation.Pitch, DeltaControlRotation.Yaw, 0.0f);
@@ -246,7 +239,6 @@ void UComponentWallHug::Peek(AController *Controller, FRotator InitControlRotati
 void UComponentWallHug::UnPeek(AController *Controller, FRotator InitControlRotation, FRotator DeltaControlRotation, FRotator InitRelativeRotation, double time)
 {
 	time += this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
-	double target = (Direction == PeekDirection::LEFT ? UComponentWallHug::CameraMaxOffSetX : -UComponentWallHug::CameraMaxOffSetX);
 	if (time >= 1)
 	{
 		InitControlRotation.Add(DeltaControlRotation.Pitch, DeltaControlRotation.Yaw, 0.0f);
@@ -271,9 +263,41 @@ void UComponentWallHug::UnPeek(AController *Controller, FRotator InitControlRota
 
 void UComponentWallHug::HandlePeekLook(FVector2d LookAxisVector)
 {
-	FVector controllerRotation = this->MyOwner->GetControlRotation().Vector();
-	FVector forwardVector = this->MyOwner->GetActorForwardVector();
 	FVector rightVector = this->MyOwner->GetActorRotation().RotateVector(FVector::RightVector);
+	FVector forwardVector = this->MyOwner->GetActorForwardVector();
+	if (this->PeekState != PeekDirection::NONE)
+	{
+		// FRotator forwardRotation = (-this->MyOwner->GetActorForwardVector()).Rotation();
+		// FRotator cameraRotation = this->MyOwner->GetFollowCamera()->GetRelativeRotation();
+		// cameraRotation.Yaw += LookAxisVector.X;
+		// FVector cameraRotationVector = cameraRotation.Vector();
+		// if (FVector::DotProduct(cameraRotationVector, forwardVector) > 0)
+		// {
+		// 	if (FVector::DotProduct(cameraRotation.Vector(), rightVector) > 0)
+		// 	{
+		// 		cameraRotation.Yaw = rightVector.Rotation().Yaw;
+		// 	}
+		// 	else
+		// 	{
+		// 		cameraRotation.Yaw = (-rightVector).Rotation().Yaw;
+		// 	}
+		// }
+		// GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Blue, cameraRotation.ToString());
+		// cameraRotation.Pitch -= LookAxisVector.Y;
+		// cameraRotation.Pitch = CLAMP(cameraRotation.Pitch, -75.0f, 75.0f);
+		// this->MyOwner->GetFollowCamera()->SetRelativeRotation(cameraRotation);
+		FRotator relativeRotation = this->MyOwner->GetFollowCamera()->GetRelativeRotation();
+		relativeRotation.Pitch -= LookAxisVector.Y;
+		relativeRotation.Pitch = CLAMP(relativeRotation.Pitch, -45.0f, 45.0f);
+		relativeRotation.Yaw += LookAxisVector.X;
+		const bool left = this->PeekState == PeekDirection::LEFT;
+		const double min = left ? 0 : -179.0f;
+		const double max = left ? 179.0f : 0;
+		relativeRotation.Yaw = CLAMP(relativeRotation.Yaw, min, max);
+		this->MyOwner->GetFollowCamera()->SetRelativeRotation(relativeRotation);
+		return;
+	}
+	FVector controllerRotation = this->MyOwner->GetControlRotation().Vector();
 	MyOwner->AddControllerYawInput(LookAxisVector.X);
 	MyOwner->AddControllerPitchInput(LookAxisVector.Y);
 	if (FVector::DotProduct(forwardVector, controllerRotation) > 0)
