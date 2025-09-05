@@ -26,7 +26,8 @@ public:
 	// When you modify this bool, do perform this side effect ResetCamera
 	bool IsHuggingWall = false;
 	double OriginCameraLength;
-	const double CameraMaxOffSetX = 100.0f;
+	const double CameraMaxOffSetX = 45.0f;
+	const double PeekCameraLengthOffset = 75.0f;
 	const double CameraMaxOffSetY = 100.0f;
 	class AGASP8Character *MyOwner;
 	static double CameraPeekSpeed;
