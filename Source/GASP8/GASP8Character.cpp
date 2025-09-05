@@ -301,5 +301,8 @@ void AGASP8Character::StopMoving()
 void AGASP8Character::Jump()
 {
 	Super::Jump();
-	this->MyWallHugComponent->UpdateIsHuggingWall(false);
+	if(this->MyWallHugComponent->IsHuggingWall)
+	{
+		this->MyWallHugComponent->UpdateIsHuggingWall(false);
+	}
 }
