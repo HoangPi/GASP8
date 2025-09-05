@@ -166,7 +166,7 @@ void UComponentWallHug::WallHugMovement(bool IsMovingRight)
 			controller->GetControlRotation());
 		// DeltaControlRotation.Pitch = 0.0f;
 		this->PeekState = (IsMovingRight ? PeekDirection::RIGHT : PeekDirection::LEFT);
-		this->Peek(controller, controller->GetControlRotation(), DeltaControlRotation.Yaw);
+		this->Peek(controller, controller->GetControlRotation(), DeltaControlRotation);
 	}
 }
 
@@ -216,7 +216,7 @@ void UComponentWallHug::ZoomOut(USpringArmComponent *SpringArm, double time)
 															{ this->ZoomOut(SpringArm, time); });
 }
 
-void UComponentWallHug::Peek(AController *Controller, FRotator InitControlRotation, double DeltaControlYawRotation, double time)
+void UComponentWallHug::Peek(AController *Controller, FRotator InitControlRotation, FRotator DeltaControlRotation, double time)
 {
 	time += this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
 	double target = Direction == PeekDirection::LEFT ? UComponentWallHug::CameraMaxOffSetX : -UComponentWallHug::CameraMaxOffSetX;
@@ -228,16 +228,19 @@ void UComponentWallHug::Peek(AController *Controller, FRotator InitControlRotati
 
 	if (time >= 1)
 	{
-		InitControlRotation.Add(0, DeltaControlYawRotation, 0);
+		InitControlRotation.Add(DeltaControlRotation.Pitch, DeltaControlRotation.Yaw, 0.0f);
+		InitControlRotation.Pitch = 0;
 		Controller->SetControlRotation(InitControlRotation);
 		return;
 	}
 	FRotator currentRotation = InitControlRotation;
-	double deltaYaw = UKismetMathLibrary::FInterpEaseInOut(0, DeltaControlYawRotation, time, 2);
+	double deltaYaw = UKismetMathLibrary::FInterpEaseInOut(0, DeltaControlRotation.Yaw, time, 2);
+	double deltaPitch = UKismetMathLibrary::FInterpEaseInOut(0, DeltaControlRotation.Pitch, time, 2);
 	currentRotation.Yaw += deltaYaw;
+	currentRotation.Pitch += deltaPitch;
 	Controller->SetControlRotation(currentRotation);
-	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, Controller, InitControlRotation, DeltaControlYawRotation, time]()
-															{ this->Peek(Controller, InitControlRotation, DeltaControlYawRotation, time); });
+	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, Controller, InitControlRotation, DeltaControlRotation, time]()
+															{ this->Peek(Controller, InitControlRotation, DeltaControlRotation, time); });
 }
 void UComponentWallHug::UnPeek(AController *Controller, FRotator InitControlRotation, FRotator DeltaControlRotation, double time)
 {
