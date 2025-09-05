@@ -25,17 +25,33 @@ public:
 	UInputAction *InteractAction;
 	// When you modify this bool, do perform this side effect ResetCamera
 	bool IsHuggingWall = false;
-
-	void WallHug();
-	void WallHugMovement(bool IsMovingLeft = true);
+	double OriginCameraLength;
+	const double CameraMaxOffSetX = 45.0f;
+	const double PeekCameraLengthOffset = 75.0f;
+	const double CameraMaxOffSetY = 100.0f;
 	class AGASP8Character *MyOwner;
-	void ResetCamera();
-	void UpdateIsHuggingWall(bool state);
-
 	static double CameraPeekSpeed;
 	static double CameraMaxPeekDistance;
 	static FCollisionObjectQueryParams TraceObjects;
 	static FCollisionQueryParams ActorsToIgnores;
+	enum PeekDirection : uint8
+	{
+		NONE = 0,
+		LEFT = 1,
+		RIGHT = 2
+	};
+	PeekDirection PeekState;
+
+	void WallHug();
+	void WallHugMovement(bool IsMovingRight = true);
+	void ResetCamera();
+	void UpdateIsHuggingWall(bool state);
+	void ZoomIn(USpringArmComponent *SpringArm, double time = 0.0f);
+	void ZoomOut(USpringArmComponent *SpringArm, double time = 0.0f);
+	void Peek(AController *Controller, FRotator InitControlYawRotation, FRotator DeltaControlRotation, double time = 0.0f);
+	void UnPeek(AController *Controller, FRotator InitControlRotation, FRotator TargetControlRotation, FRotator InitRelativeRotation, double time = 0.0f);
+	void HandlePeekLook(FVector2d LookAxisVector);
+
 
 protected:
 	// Called when the game starts
