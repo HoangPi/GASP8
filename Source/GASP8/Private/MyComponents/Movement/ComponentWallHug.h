@@ -48,7 +48,7 @@ public:
 	void ZoomIn(USpringArmComponent *SpringArm, double time = 0.0f);
 	void ZoomOut(USpringArmComponent *SpringArm, double time = 0.0f);
 	void Peek(AController *Controller, FRotator InitControlYawRotation, FRotator DeltaControlRotation, double time = 0.0f);
-	void UnPeek(AController *Controller, FRotator InitControlRotation, FRotator TargetControlRotation, double time = 0.0f);
+	void UnPeek(AController *Controller, FRotator InitControlRotation, FRotator TargetControlRotation, FRotator InitRelativeRotation, double time = 0.0f);
 	void HandlePeekLook(FVector2d LookAxisVector);
 
 
