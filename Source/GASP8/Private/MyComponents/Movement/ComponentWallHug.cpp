@@ -223,6 +223,7 @@ void UComponentWallHug::Peek(AController *Controller, FRotator InitControlRotati
 	if (time >= 1)
 	{
 		InitControlRotation.Add(DeltaControlRotation.Pitch, DeltaControlRotation.Yaw, 0.0f);
+		this->MyOwner->GetFollowCamera()->SetRelativeRotation(FRotator{-DeltaControlRotation.Pitch, -DeltaControlRotation.Yaw, 0.0f});
 		InitControlRotation.Pitch = 0;
 		Controller->SetControlRotation(InitControlRotation);
 		return;
@@ -232,6 +233,8 @@ void UComponentWallHug::Peek(AController *Controller, FRotator InitControlRotati
 	double deltaPitch = UKismetMathLibrary::FInterpEaseInOut(0, DeltaControlRotation.Pitch, time, 2);
 	currentRotation.Yaw += deltaYaw;
 	currentRotation.Pitch += deltaPitch;
+	FRotator relativeRotation{-deltaPitch,-deltaYaw, 0.0f};
+	this->MyOwner->GetFollowCamera()->SetRelativeRotation(relativeRotation);
 	Controller->SetControlRotation(currentRotation);
 	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, Controller, InitControlRotation, DeltaControlRotation, time]()
 															{ this->Peek(Controller, InitControlRotation, DeltaControlRotation, time); });
@@ -250,11 +253,9 @@ void UComponentWallHug::UnPeek(AController *Controller, FRotator InitControlRota
 	const double deltaYawRotation = UKismetMathLibrary::FInterpEaseInOut(0, DeltaControlRotation.Yaw, time, 2);
 	FRotator currentRotaion = InitControlRotation;
 	currentRotaion.Add(deltaPitchhRotation, deltaYawRotation, 0.0f);
-	FRotator currentRelativeRotation({
-		UKismetMathLibrary::FInterpEaseInOut(InitRelativeRotation.Pitch, 0, time, 2),
-		UKismetMathLibrary::FInterpEaseInOut(InitRelativeRotation.Yaw, 0, time, 2),
-		0.0f
-	});
+	FRotator currentRelativeRotation({UKismetMathLibrary::FInterpEaseInOut(InitRelativeRotation.Pitch, 0, time, 2),
+									  UKismetMathLibrary::FInterpEaseInOut(InitRelativeRotation.Yaw, 0, time, 2),
+									  0.0f});
 	this->MyOwner->GetFollowCamera()->SetRelativeRotation(currentRelativeRotation);
 	Controller->SetControlRotation(currentRotaion);
 	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, Controller, InitControlRotation, DeltaControlRotation, InitRelativeRotation, time]()
@@ -267,25 +268,6 @@ void UComponentWallHug::HandlePeekLook(FVector2d LookAxisVector)
 	FVector forwardVector = this->MyOwner->GetActorForwardVector();
 	if (this->PeekState != PeekDirection::NONE)
 	{
-		// FRotator forwardRotation = (-this->MyOwner->GetActorForwardVector()).Rotation();
-		// FRotator cameraRotation = this->MyOwner->GetFollowCamera()->GetRelativeRotation();
-		// cameraRotation.Yaw += LookAxisVector.X;
-		// FVector cameraRotationVector = cameraRotation.Vector();
-		// if (FVector::DotProduct(cameraRotationVector, forwardVector) > 0)
-		// {
-		// 	if (FVector::DotProduct(cameraRotation.Vector(), rightVector) > 0)
-		// 	{
-		// 		cameraRotation.Yaw = rightVector.Rotation().Yaw;
-		// 	}
-		// 	else
-		// 	{
-		// 		cameraRotation.Yaw = (-rightVector).Rotation().Yaw;
-		// 	}
-		// }
-		// GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Blue, cameraRotation.ToString());
-		// cameraRotation.Pitch -= LookAxisVector.Y;
-		// cameraRotation.Pitch = CLAMP(cameraRotation.Pitch, -75.0f, 75.0f);
-		// this->MyOwner->GetFollowCamera()->SetRelativeRotation(cameraRotation);
 		FRotator relativeRotation = this->MyOwner->GetFollowCamera()->GetRelativeRotation();
 		relativeRotation.Pitch -= LookAxisVector.Y;
 		relativeRotation.Pitch = CLAMP(relativeRotation.Pitch, -45.0f, 45.0f);
