@@ -10,6 +10,7 @@
 #include "MyEffects/Cooldown/EffectGenericCooldown.h"
 #include "MyTags/MyTags.h"
 #include "Math/UnrealMathUtility.h"
+#include "MyComponents/Movement/ComponentWallHug.h"
 
 // Sets default values for this component's properties
 UComponentLockon::UComponentLockon()
@@ -110,6 +111,10 @@ void UComponentLockon::Lockon()
 		if (!controller->LineOfSightTo(result.GetActor(), this->MyOwner->GetFollowCamera()->GetComponentLocation()))
 		{
 			FRotator target = this->MyOwner->GetActorRotation();
+			if(this->MyOwner->MyWallHugComponent->IsHuggingWall)
+			{
+				target = target.RotateVector(FVector::BackwardVector).Rotation();
+			}
 			FRotator temp = controller->GetControlRotation();
 			target.Normalize();
 			temp.Normalize();
@@ -133,6 +138,10 @@ void UComponentLockon::Lockon()
 		controller->SetControlRotation(temp);
 		if (!controller->LineOfSightTo(result.GetActor(), this->MyOwner->GetFollowCamera()->GetComponentLocation()))
 		{
+			if(this->MyOwner->MyWallHugComponent->IsHuggingWall)
+			{
+				target = target.RotateVector(FVector::BackwardVector).Rotation();
+			}
 			this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, controller, target]()
 																	{ this->AdjustCamera(controller, target); });
 		}

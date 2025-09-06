@@ -9,6 +9,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Ultilities/Template.h"
 
 #include "ComponentWallHug.generated.h"
 
@@ -26,12 +27,10 @@ public:
 	// When you modify this bool, do perform this side effect ResetCamera
 	bool IsHuggingWall = false;
 	double OriginCameraLength;
-	const double CameraMaxOffSetX = 45.0f;
 	const double PeekCameraLengthOffset = 75.0f;
-	const double CameraMaxOffSetY = 100.0f;
+	const double CameraMaxOffSetY = 180.0f;
 	class AGASP8Character *MyOwner;
-	static double CameraPeekSpeed;
-	static double CameraMaxPeekDistance;
+	const double CameraPeekSpeed = 1.8f;
 	static FCollisionObjectQueryParams TraceObjects;
 	static FCollisionQueryParams ActorsToIgnores;
 	enum PeekDirection : uint8
@@ -44,12 +43,11 @@ public:
 
 	void WallHug();
 	void WallHugMovement(bool IsMovingRight = true);
-	void ResetCamera();
 	void UpdateIsHuggingWall(bool state);
 	void ZoomIn(USpringArmComponent *SpringArm, double time = 0.0f);
 	void ZoomOut(USpringArmComponent *SpringArm, double time = 0.0f);
-	void Peek(AController *Controller, FRotator InitControlYawRotation, FRotator DeltaControlRotation, double time = 0.0f);
-	void UnPeek(AController *Controller, FRotator InitControlRotation, FRotator TargetControlRotation, FRotator InitRelativeRotation, double time = 0.0f);
+	void Peek(USpringArmComponent *CameraBoom, const double YOffset, double time = 0.0f);
+	void UnPeek(USpringArmComponent *CameraBoom, FVector InitCameraLocation, double time = 0.0f);
 	void HandlePeekLook(FVector2d LookAxisVector);
 
 
