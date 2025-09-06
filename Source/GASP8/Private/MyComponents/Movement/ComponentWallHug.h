@@ -43,7 +43,6 @@ public:
 
 	void WallHug();
 	void WallHugMovement(bool IsMovingRight = true);
-	void ResetCamera();
 	void UpdateIsHuggingWall(bool state);
 	void ZoomIn(USpringArmComponent *SpringArm, double time = 0.0f);
 	void ZoomOut(USpringArmComponent *SpringArm, double time = 0.0f);

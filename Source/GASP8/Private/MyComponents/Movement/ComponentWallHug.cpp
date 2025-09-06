@@ -163,26 +163,6 @@ void UComponentWallHug::WallHugMovement(bool IsMovingRight)
 	}
 }
 
-void UComponentWallHug::ResetCamera()
-{
-	auto origin = this->MyOwner->GetFollowCamera()->GetRelativeLocation();
-	if (UKismetMathLibrary::Abs(origin.Y) <= 1.0f)
-	{
-		this->MyOwner->GetFollowCamera()->SetRelativeLocation(FVector{0.0f});
-		return;
-	}
-	double scaleDirection = origin.Y < 0 ? 1.0f : -1.0f;
-	origin.Y += scaleDirection * this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
-	if ((scaleDirection == 1.0f && origin.Y >= 0) || (scaleDirection == -1.0f && origin.Y <= 0))
-	{
-		this->MyOwner->GetFollowCamera()->SetRelativeLocation(FVector{0.0f});
-		return;
-	}
-	this->MyOwner->GetFollowCamera()->SetRelativeLocation(origin);
-	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
-															{ this->ResetCamera(); });
-}
-
 void UComponentWallHug::ZoomIn(USpringArmComponent *SpringArm, double time)
 {
 	time += this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
@@ -296,6 +276,5 @@ void UComponentWallHug::UpdateIsHuggingWall(bool state)
 			this->PeekState = PeekDirection::NONE;
 			this->UnPeek(cam, cam->GetRelativeLocation());
 		}
-		// this->ResetCamera();
 	}
 }
