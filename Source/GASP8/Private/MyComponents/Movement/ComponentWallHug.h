@@ -48,7 +48,7 @@ public:
 	void UpdateIsHuggingWall(bool state);
 	void ZoomIn(USpringArmComponent *SpringArm, double time = 0.0f);
 	void ZoomOut(USpringArmComponent *SpringArm, double time = 0.0f);
-	void Peek(const StatePeristedObj<double> ControlPitchRotation, USpringArmComponent *CameraBoom, UCameraComponent *FollowCamera, const double YOffset, double time = 0.0f);
+	void Peek(const StatePeristedObj<double> ControlPitchRotation, USpringArmComponent *CameraBoom, const double YOffset, double time = 0.0f);
 	void UnPeek(AController *Controller, FRotator InitControlRotation, FRotator TargetControlRotation, FRotator InitRelativeRotation, double time = 0.0f);
 	void HandlePeekLook(FVector2d LookAxisVector);
 
