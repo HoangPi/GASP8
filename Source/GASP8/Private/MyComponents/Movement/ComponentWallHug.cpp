@@ -114,11 +114,9 @@ void UComponentWallHug::WallHugMovement(bool IsMovingRight)
 		{
 			return;
 		}
-		AController *controller = this->MyOwner->GetController();
-		FRotator rot = controller->GetControlRotation();
-		this->UnPeek(
-			);
+		USpringArmComponent *cam = this->MyOwner->GetCameraBoom();
 		this->PeekState = NONE;
+		this->UnPeek(cam, cam->GetRelativeLocation());
 	}
 	constexpr double AngluarCheck = 135.0f;
 	FVector start = this->MyOwner->GetActorLocation();
@@ -193,7 +191,7 @@ void UComponentWallHug::ZoomIn(USpringArmComponent *SpringArm, double time)
 		SpringArm->TargetArmLength = this->OriginCameraLength - UComponentWallHug::CameraMaxOffSetY;
 		return;
 	}
-	SpringArm->TargetArmLength = this->OriginCameraLength - UKismetMathLibrary::FInterpEaseInOut(0, UComponentWallHug::CameraMaxOffSetY, time, 2);
+	SpringArm->TargetArmLength = UKismetMathLibrary::FInterpEaseInOut(SpringArm->TargetArmLength, this->OriginCameraLength - this->CameraMaxOffSetY, time, 2);
 	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, SpringArm, time]()
 															{ this->ZoomIn(SpringArm, time); });
 }
@@ -206,13 +204,17 @@ void UComponentWallHug::ZoomOut(USpringArmComponent *SpringArm, double time)
 		SpringArm->TargetArmLength = this->OriginCameraLength;
 		return;
 	}
-	SpringArm->TargetArmLength = this->OriginCameraLength - UKismetMathLibrary::FInterpEaseInOut(UComponentWallHug::CameraMaxOffSetY, 0, time, 2);
+	SpringArm->TargetArmLength = UKismetMathLibrary::FInterpEaseInOut(SpringArm->TargetArmLength, this->OriginCameraLength, time, 2);
 	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, SpringArm, time]()
 															{ this->ZoomOut(SpringArm, time); });
 }
 
 void UComponentWallHug::Peek(USpringArmComponent *CameraBoom, double YOffset, double time)
 {
+	if (this->PeekState == PeekDirection::NONE)
+	{
+		return;
+	}
 	constexpr double XOffset = 80.0f;
 	constexpr double ZOffset = 60.0f;
 	time += this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
@@ -224,23 +226,37 @@ void UComponentWallHug::Peek(USpringArmComponent *CameraBoom, double YOffset, do
 	}
 	if (const double axlrtime = time * 1.35 < 1)
 	{
-		CameraBoom->SetRelativeLocation(UKismetMathLibrary::VInterpTo(FVector::ZeroVector, FVector(XOffset, YOffset, ZOffset), axlrtime, 1));
 	}
+	CameraBoom->SetRelativeLocation(UKismetMathLibrary::VInterpTo(CameraBoom->GetRelativeLocation(), FVector(XOffset, YOffset, ZOffset), time, 1));
 	CameraBoom->TargetArmLength = UKismetMathLibrary::FInterpTo(CameraBoom->TargetArmLength, 0, time, 1);
 	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, CameraBoom, YOffset, time]()
 															{ this->Peek(CameraBoom, YOffset, time); });
 }
-void UComponentWallHug::UnPeek(double time)
+
+void UComponentWallHug::UnPeek(USpringArmComponent *CameraBoom, FVector InitCameraLocation, double time)
 {
+	if (this->PeekState != PeekDirection::NONE)
+	{
+		return;
+	}
+	if (CameraBoom->TargetArmLength >= this->OriginCameraLength - this->CameraMaxOffSetY)
+	{
+		return;
+	}
 	time += this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
 	if (time >= 1)
 	{
-		this->MyOwner->GetCameraBoom()->SetRelativeLocation(FVector::ZeroVector);
-		this->MyOwner->GetCameraBoom()->TargetArmLength = this->OriginCameraLength;
+		CameraBoom->SetRelativeLocation(FVector::ZeroVector);
+		CameraBoom->TargetArmLength = this->OriginCameraLength - this->CameraMaxOffSetY;
 		return;
 	}
-	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, time]()
-															{ this->UnPeek(time); });
+	if (const double axlrtime = time * 1.35 < 1)
+	{
+	}
+	CameraBoom->TargetArmLength = UKismetMathLibrary::FInterpTo(CameraBoom->TargetArmLength, this->OriginCameraLength - this->CameraMaxOffSetY, time, 1);
+	CameraBoom->SetRelativeLocation(UKismetMathLibrary::VInterpTo(CameraBoom->GetRelativeLocation(), FVector::ZeroVector, time, 1));
+	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, CameraBoom, InitCameraLocation, time]()
+															{ this->UnPeek(CameraBoom, InitCameraLocation, time); });
 }
 
 void UComponentWallHug::HandlePeekLook(FVector2d LookAxisVector)
@@ -273,13 +289,12 @@ void UComponentWallHug::UpdateIsHuggingWall(bool state)
 	this->MyOwner->GetCharacterMovement()->bOrientRotationToMovement = !state;
 	if (!state)
 	{
-		this->ZoomOut(this->MyOwner->GetCameraBoom());
+		USpringArmComponent *cam = this->MyOwner->GetCameraBoom();
+		this->ZoomOut(cam);
 		if (this->PeekState != PeekDirection::NONE)
 		{
-			AController *controller = this->MyOwner->GetController();
-			FRotator rot = controller->GetControlRotation();
-			this->UnPeek();
 			this->PeekState = PeekDirection::NONE;
+			this->UnPeek(cam, cam->GetRelativeLocation());
 		}
 		// this->ResetCamera();
 	}
