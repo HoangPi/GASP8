@@ -117,12 +117,7 @@ void UComponentWallHug::WallHugMovement(bool IsMovingRight)
 		AController *controller = this->MyOwner->GetController();
 		FRotator rot = controller->GetControlRotation();
 		this->UnPeek(
-			controller,
-			rot,
-			UKismetMathLibrary::NormalizedDeltaRotator(
-				this->MyOwner->GetActorRotation().RotateVector(FVector::BackwardVector).Rotation(),
-				rot),
-			this->MyOwner->GetFollowCamera()->GetRelativeRotation());
+			);
 		this->PeekState = NONE;
 	}
 	constexpr double AngluarCheck = 135.0f;
@@ -165,7 +160,6 @@ void UComponentWallHug::WallHugMovement(bool IsMovingRight)
 		const FRotator initControlRotation = this->MyOwner->GetControlRotation();
 		this->PeekState = (IsMovingRight ? PeekDirection::RIGHT : PeekDirection::LEFT);
 		this->Peek(
-			{initControlRotation.Pitch, UKismetMathLibrary::NormalizedDeltaRotator(FRotator::ZeroRotator, initControlRotation).Pitch},
 			this->MyOwner->GetCameraBoom(),
 			IsMovingRight ? YOffset : -YOffset);
 	}
@@ -217,7 +211,7 @@ void UComponentWallHug::ZoomOut(USpringArmComponent *SpringArm, double time)
 															{ this->ZoomOut(SpringArm, time); });
 }
 
-void UComponentWallHug::Peek(const StatePeristedObj<double> ControlPitchRotation, USpringArmComponent *CameraBoom, double YOffset, double time)
+void UComponentWallHug::Peek(USpringArmComponent *CameraBoom, double YOffset, double time)
 {
 	constexpr double XOffset = 80.0f;
 	constexpr double ZOffset = 60.0f;
@@ -225,68 +219,34 @@ void UComponentWallHug::Peek(const StatePeristedObj<double> ControlPitchRotation
 	if (time >= 1)
 	{
 		CameraBoom->TargetArmLength = 0;
-		auto rot = this->MyOwner->GetControlRotation();
-		rot.Pitch = 0.0f;
-		this->MyOwner->GetController()->SetControlRotation(rot);
 		CameraBoom->SetRelativeLocation(FVector({XOffset, YOffset, ZOffset}));
 		return;
 	}
-	// Interp this faster before camera boom's change take full effect (snappy)
 	if (const double axlrtime = time * 1.35 < 1)
 	{
-		FRotator controlRotation = this->MyOwner->GetControlRotation();
-		controlRotation.Pitch = ControlPitchRotation.OldObj + UKismetMathLibrary::FInterpTo(0, ControlPitchRotation.NewObj, axlrtime, 1);
-		this->MyOwner->GetController()->SetControlRotation(controlRotation);
 		CameraBoom->SetRelativeLocation(UKismetMathLibrary::VInterpTo(FVector::ZeroVector, FVector(XOffset, YOffset, ZOffset), axlrtime, 1));
 	}
 	CameraBoom->TargetArmLength = UKismetMathLibrary::FInterpTo(CameraBoom->TargetArmLength, 0, time, 1);
-	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, ControlPitchRotation, CameraBoom, YOffset, time]()
-															{ this->Peek(ControlPitchRotation, CameraBoom, YOffset, time); });
+	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, CameraBoom, YOffset, time]()
+															{ this->Peek(CameraBoom, YOffset, time); });
 }
-void UComponentWallHug::UnPeek(AController *Controller, FRotator InitControlRotation, FRotator DeltaControlRotation, FRotator InitRelativeRotation, double time)
+void UComponentWallHug::UnPeek(double time)
 {
 	time += this->GetWorld()->GetDeltaSeconds() * UComponentWallHug::CameraPeekSpeed;
 	if (time >= 1)
 	{
-		InitControlRotation.Add(DeltaControlRotation.Pitch, DeltaControlRotation.Yaw, 0.0f);
-		Controller->SetControlRotation(InitControlRotation);
-		this->MyOwner->GetFollowCamera()->SetRelativeLocationAndRotation(
-			FVector(0.0f),
-			FRotator{0.0f});
-		this->MyOwner->GetCameraBoom()->TargetArmLength = this->OriginCameraLength - UComponentWallHug::CameraMaxOffSetY + UComponentWallHug::PeekCameraLengthOffset;
+		this->MyOwner->GetCameraBoom()->SetRelativeLocation(FVector::ZeroVector);
+		this->MyOwner->GetCameraBoom()->TargetArmLength = this->OriginCameraLength;
 		return;
 	}
-	const double deltaPitchhRotation = UKismetMathLibrary::FInterpEaseInOut(0, DeltaControlRotation.Pitch, time, 2);
-	const double deltaYawRotation = UKismetMathLibrary::FInterpEaseInOut(0, DeltaControlRotation.Yaw, time, 2);
-	FRotator currentRotaion = InitControlRotation;
-	currentRotaion.Add(deltaPitchhRotation, deltaYawRotation, 0.0f);
-	FRotator currentRelativeRotation({UKismetMathLibrary::FInterpEaseInOut(InitRelativeRotation.Pitch, 0, time, 2),
-									  UKismetMathLibrary::FInterpEaseInOut(InitRelativeRotation.Yaw, 0, time, 2),
-									  0.0f});
-	FVector relativeLocation{0.0f, 0.0f, UKismetMathLibrary::FInterpEaseInOut(UComponentWallHug::CameraMaxOffSetX, 0, time, 2)};
-	this->MyOwner->GetFollowCamera()->SetRelativeLocationAndRotation(relativeLocation, currentRelativeRotation);
-	this->MyOwner->GetCameraBoom()->TargetArmLength = this->OriginCameraLength - UComponentWallHug::CameraMaxOffSetY + UKismetMathLibrary::FInterpEaseInOut(UComponentWallHug::PeekCameraLengthOffset, 0, time, 2);
-	Controller->SetControlRotation(currentRotaion);
-	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, Controller, InitControlRotation, DeltaControlRotation, InitRelativeRotation, time]()
-															{ this->UnPeek(Controller, InitControlRotation, DeltaControlRotation, InitRelativeRotation, time); });
+	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, time]()
+															{ this->UnPeek(time); });
 }
 
 void UComponentWallHug::HandlePeekLook(FVector2d LookAxisVector)
 {
 	FVector rightVector = this->MyOwner->GetActorRotation().RotateVector(FVector::RightVector);
 	FVector forwardVector = this->MyOwner->GetActorForwardVector();
-	if (this->PeekState != PeekDirection::NONE)
-	{
-		FRotator relativeRotation = this->MyOwner->GetFollowCamera()->GetRelativeRotation();
-		relativeRotation.Pitch -= LookAxisVector.Y;
-		relativeRotation.Pitch = CLAMP(relativeRotation.Pitch, -45.0f, 45.0f);
-		relativeRotation.Yaw += LookAxisVector.X;
-		constexpr double min = -90.0f;
-		constexpr double max = 90.0f;
-		relativeRotation.Yaw = CLAMP(relativeRotation.Yaw, min, max);
-		this->MyOwner->GetFollowCamera()->SetRelativeRotation(relativeRotation);
-		return;
-	}
 	FVector controllerRotation = this->MyOwner->GetControlRotation().Vector();
 	MyOwner->AddControllerYawInput(LookAxisVector.X);
 	MyOwner->AddControllerPitchInput(LookAxisVector.Y);
@@ -318,13 +278,7 @@ void UComponentWallHug::UpdateIsHuggingWall(bool state)
 		{
 			AController *controller = this->MyOwner->GetController();
 			FRotator rot = controller->GetControlRotation();
-			this->UnPeek(
-				controller,
-				rot,
-				UKismetMathLibrary::NormalizedDeltaRotator(
-					this->MyOwner->GetActorRotation().RotateVector(FVector::BackwardVector).Rotation(),
-					rot),
-				this->MyOwner->GetFollowCamera()->GetRelativeRotation());
+			this->UnPeek();
 			this->PeekState = PeekDirection::NONE;
 		}
 		// this->ResetCamera();
