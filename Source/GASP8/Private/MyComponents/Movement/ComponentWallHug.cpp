@@ -227,9 +227,6 @@ void UComponentWallHug::UnPeek(USpringArmComponent *CameraBoom, FVector InitCame
 		CameraBoom->TargetArmLength = this->OriginCameraLength - this->CameraMaxOffSetY;
 		return;
 	}
-	if (const double axlrtime = time * 1.35 < 1)
-	{
-	}
 	CameraBoom->TargetArmLength = UKismetMathLibrary::FInterpTo(CameraBoom->TargetArmLength, this->OriginCameraLength - this->CameraMaxOffSetY, time, 1);
 	CameraBoom->SetRelativeLocation(UKismetMathLibrary::VInterpTo(CameraBoom->GetRelativeLocation(), FVector::ZeroVector, time, 1));
 	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, CameraBoom, InitCameraLocation, time]()
