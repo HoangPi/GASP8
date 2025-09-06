@@ -7,8 +7,6 @@
 #include "GASP8/GASP8Character.h"
 #include "Ultilities/Macro.h"
 
-double UComponentWallHug::CameraPeekSpeed = 1.8f;
-double UComponentWallHug::CameraMaxPeekDistance = 50.0f;
 FCollisionObjectQueryParams UComponentWallHug::TraceObjects;
 FCollisionQueryParams UComponentWallHug::ActorsToIgnores;
 

@@ -31,8 +31,7 @@ public:
 	const double PeekCameraLengthOffset = 75.0f;
 	const double CameraMaxOffSetY = 180.0f;
 	class AGASP8Character *MyOwner;
-	static double CameraPeekSpeed;
-	static double CameraMaxPeekDistance;
+	const double CameraPeekSpeed = 1.8f;
 	static FCollisionObjectQueryParams TraceObjects;
 	static FCollisionQueryParams ActorsToIgnores;
 	enum PeekDirection : uint8
