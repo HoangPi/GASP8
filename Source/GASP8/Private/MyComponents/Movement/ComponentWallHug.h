@@ -9,6 +9,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Ultilities/Template.h"
 
 #include "ComponentWallHug.generated.h"
 
@@ -28,7 +29,7 @@ public:
 	double OriginCameraLength;
 	const double CameraMaxOffSetX = 45.0f;
 	const double PeekCameraLengthOffset = 75.0f;
-	const double CameraMaxOffSetY = 100.0f;
+	const double CameraMaxOffSetY = 180.0f;
 	class AGASP8Character *MyOwner;
 	static double CameraPeekSpeed;
 	static double CameraMaxPeekDistance;
@@ -48,7 +49,7 @@ public:
 	void UpdateIsHuggingWall(bool state);
 	void ZoomIn(USpringArmComponent *SpringArm, double time = 0.0f);
 	void ZoomOut(USpringArmComponent *SpringArm, double time = 0.0f);
-	void Peek(AController *Controller, FRotator InitControlYawRotation, FRotator DeltaControlRotation, double time = 0.0f);
+	void Peek(const StatePeristedObj<double> ControlPitchRotation, USpringArmComponent *CameraBoom, UCameraComponent *FollowCamera, const double YOffset, double time = 0.0f);
 	void UnPeek(AController *Controller, FRotator InitControlRotation, FRotator TargetControlRotation, FRotator InitRelativeRotation, double time = 0.0f);
 	void HandlePeekLook(FVector2d LookAxisVector);
 
