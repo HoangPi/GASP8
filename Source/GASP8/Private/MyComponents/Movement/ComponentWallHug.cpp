@@ -154,7 +154,7 @@ void UComponentWallHug::WallHugMovement(bool IsMovingRight)
 	{
 		// DeltaControlRotation.Pitch = 0.0f;
 		// #tag Handle_Peek
-		constexpr double YOffset = 65.0f;
+		constexpr double YOffset = 80.0f;
 		const FRotator initControlRotation = this->MyOwner->GetControlRotation();
 		this->PeekState = (IsMovingRight ? PeekDirection::RIGHT : PeekDirection::LEFT);
 		this->Peek(
