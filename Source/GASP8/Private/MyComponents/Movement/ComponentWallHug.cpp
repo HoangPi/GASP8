@@ -182,9 +182,15 @@ void UComponentWallHug::ZoomOut(USpringArmComponent *SpringArm, double time)
 	if (time >= 1)
 	{
 		SpringArm->TargetArmLength = this->OriginCameraLength;
+		SpringArm->SetRelativeLocation(FVector::ZeroVector);
 		return;
 	}
 	SpringArm->TargetArmLength = UKismetMathLibrary::FInterpEaseInOut(SpringArm->TargetArmLength, this->OriginCameraLength, time, 2);
+	const FVector relative = SpringArm->GetRelativeLocation();
+	if (!UKismetMathLibrary::EqualExactly_VectorVector(relative, FVector::ZeroVector))
+	{
+		SpringArm->SetRelativeLocation(UKismetMathLibrary::VInterpTo(SpringArm->GetRelativeLocation(), FVector::ZeroVector, time, 1));
+	}
 	this->GetWorld()->GetTimerManager().SetTimerForNextTick([this, SpringArm, time]()
 															{ this->ZoomOut(SpringArm, time); });
 }
