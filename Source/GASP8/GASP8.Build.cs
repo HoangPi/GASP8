@@ -18,7 +18,7 @@ public class GASP8 : ModuleRules
 			"GameplayTags",
 			"GameplayTasks",
 			"AIModule",
-			// "AIGraph"
+			"AIGraph"
 			 });
 	}
 }
